@@ -58,7 +58,7 @@ digraph process {
         "Dispatch code quality reviewer subagent (./code-quality-reviewer-prompt.md)" [shape=box];
         "Code quality reviewer subagent approves?" [shape=diamond];
         "Implementer subagent fixes quality issues" [shape=box];
-        "Mark task complete with TaskUpdate" [shape=box];
+        "Mark task complete with TaskUpdate\nand update plan file checkboxes" [shape=box];
     }
 
     "Read plan, extract all tasks with full text, note context, initialize tasks with TaskCreate" [shape=box];
