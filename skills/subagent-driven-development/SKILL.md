@@ -79,13 +79,22 @@ digraph process {
     "Dispatch code quality reviewer subagent (./code-quality-reviewer-prompt.md)" -> "Code quality reviewer subagent approves?";
     "Code quality reviewer subagent approves?" -> "Implementer subagent fixes quality issues" [label="no"];
     "Implementer subagent fixes quality issues" -> "Dispatch code quality reviewer subagent (./code-quality-reviewer-prompt.md)" [label="re-review"];
-    "Code quality reviewer subagent approves?" -> "Mark task complete with TaskUpdate" [label="yes"];
-    "Mark task complete with TaskUpdate" -> "More tasks remain?";
+    "Code quality reviewer subagent approves?" -> "Mark task complete with TaskUpdate\nand update plan file checkboxes" [label="yes"];
+    "Mark task complete with TaskUpdate\nand update plan file checkboxes" -> "More tasks remain?";
     "More tasks remain?" -> "Dispatch implementer subagent (./implementer-prompt.md)" [label="yes"];
     "More tasks remain?" -> "Dispatch final code reviewer subagent for entire implementation" [label="no"];
     "Dispatch final code reviewer subagent for entire implementation" -> "Use superpowers:finishing-a-development-branch";
 }
 ```
+
+## Track Progress in the Plan File
+
+After each task passes both reviews:
+
+1. Mark the task complete with TaskUpdate
+2. Update the plan file: change each completed step from `- [ ]` to `- [x]` using the Edit tool
+
+Update checkboxes as steps complete, not only at the end of the session. A later session should be able to open the plan and resume without reconstructing progress from chat history.
 
 ## Model Selection
 
@@ -160,6 +169,7 @@ Spec reviewer: ✅ Spec compliant - all requirements met, nothing extra
 Code reviewer: Strengths: Good test coverage, clean. Issues: None. Approved.
 
 [Mark Task 1 complete with TaskUpdate]
+[Edit plan file: `- [ ]` → `- [x]` for Task 1 steps]
 
 Task 2: Recovery modes
 
@@ -194,6 +204,7 @@ Implementer: Extracted PROGRESS_INTERVAL constant
 Code reviewer: ✅ Approved
 
 [Mark Task 2 complete with TaskUpdate]
+[Edit plan file: `- [ ]` → `- [x]` for Task 2 steps]
 
 ...
 
