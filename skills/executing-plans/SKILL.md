@@ -32,7 +32,7 @@ For each task:
 2. Follow each step exactly (plan has bite-sized steps)
 3. Run verifications as specified
 4. Mark as completed using TaskUpdate
-5. Update the plan file: change `- [ ]` to `- [x]` for completed steps using the `Edit` tool
+5. Check off the task in the plan file (`- [ ]` → `- [x]`) **in the same commit as that task's work**, never as a separate `docs: check off` commit — stage the plan file alongside the task's files. If you already committed the work, fold the checkbox in before starting the next task: stage only the plan file and `git commit --amend --no-edit` onto that commit.
 
 ### Step 3: Complete Development
 

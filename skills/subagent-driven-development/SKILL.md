@@ -58,7 +58,7 @@ digraph process {
         "Dispatch code quality reviewer subagent (./code-quality-reviewer-prompt.md)" [shape=box];
         "Code quality reviewer subagent approves?" [shape=diamond];
         "Implementer subagent fixes quality issues" [shape=box];
-        "Mark task complete with TaskUpdate\nand update plan file checkboxes" [shape=box];
+        "Mark task complete (TaskUpdate);\nfold plan checkbox into the task's commit" [shape=box];
     }
 
     "Read plan, extract all tasks with full text, note context, initialize tasks with TaskCreate" [shape=box];
@@ -79,22 +79,29 @@ digraph process {
     "Dispatch code quality reviewer subagent (./code-quality-reviewer-prompt.md)" -> "Code quality reviewer subagent approves?";
     "Code quality reviewer subagent approves?" -> "Implementer subagent fixes quality issues" [label="no"];
     "Implementer subagent fixes quality issues" -> "Dispatch code quality reviewer subagent (./code-quality-reviewer-prompt.md)" [label="re-review"];
-    "Code quality reviewer subagent approves?" -> "Mark task complete with TaskUpdate\nand update plan file checkboxes" [label="yes"];
-    "Mark task complete with TaskUpdate\nand update plan file checkboxes" -> "More tasks remain?";
+    "Code quality reviewer subagent approves?" -> "Mark task complete (TaskUpdate);\nfold plan checkbox into the task's commit" [label="yes"];
+    "Mark task complete (TaskUpdate);\nfold plan checkbox into the task's commit" -> "More tasks remain?";
     "More tasks remain?" -> "Dispatch implementer subagent (./implementer-prompt.md)" [label="yes"];
     "More tasks remain?" -> "Dispatch final code reviewer subagent for entire implementation" [label="no"];
     "Dispatch final code reviewer subagent for entire implementation" -> "Use superpowers:finishing-a-development-branch";
 }
 ```
 
-## Track Progress in the Plan File
+## Track Progress in the Plan File — fold the checkbox into the task's commit
 
-After each task passes both reviews:
+The plan's checkboxes are resume state a later session reads, so they must be committed — but **never as their own `docs: check off task N` commit**. Fold each task's checkbox flip into that task's implementation commit, so history stays one commit per task with no bookkeeping noise.
 
-1. Mark the task complete with TaskUpdate
-2. Update the plan file: change each completed step from `- [ ]` to `- [x]` using the Edit tool
+After a task passes **both** reviews, and **before dispatching the next task's implementer** (the amend below targets `HEAD`, which must still be this task's commit):
 
-Update checkboxes as steps complete, not only at the end of the session. A later session should be able to open the plan and resume without reconstructing progress from chat history.
+1. Mark the task complete with TaskUpdate.
+2. Confirm the worktree is otherwise clean — the implementer already committed its work, so `git status --short` should show nothing. If it shows unexpected changes, stop and resolve them; never amend a dirty tree.
+3. Flip this task's checkboxes in the plan file (`- [ ]` → `- [x]`) with the Edit tool.
+4. Stage **only the plan file** and fold it in without changing the message: `git add <plan-file>` then `git commit --amend --no-edit`. (If the task took several commits — initial work plus review fixes — this rides the last one; that's fine.)
+5. Verify: `git show --stat HEAD` lists this task's source files **plus** the plan file and nothing else, and the commit subject is unchanged.
+
+Do this per task, not at the end — a later session must be able to open the plan and resume from the checkboxes without reconstructing progress from chat history.
+
+(The amend assumes the branch isn't pushed yet — the normal mid-run case. If you've already pushed it, amending rewrites a pushed commit, so a `git push --force-with-lease` is needed at branch-finish.)
 
 ## Model Selection
 
@@ -169,7 +176,7 @@ Spec reviewer: ✅ Spec compliant - all requirements met, nothing extra
 Code reviewer: Strengths: Good test coverage, clean. Issues: None. Approved.
 
 [Mark Task 1 complete with TaskUpdate]
-[Edit plan file: `- [ ]` → `- [x]` for Task 1 steps]
+[Flip Task 1 checkboxes; git add plan + git commit --amend --no-edit onto Task 1's commit]
 
 Task 2: Recovery modes
 
@@ -204,7 +211,7 @@ Implementer: Extracted PROGRESS_INTERVAL constant
 Code reviewer: ✅ Approved
 
 [Mark Task 2 complete with TaskUpdate]
-[Edit plan file: `- [ ]` → `- [x]` for Task 2 steps]
+[Flip Task 2 checkboxes; git add plan + git commit --amend --no-edit onto Task 2's commit]
 
 ...
 
