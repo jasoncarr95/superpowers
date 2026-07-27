@@ -140,7 +140,11 @@ if [[ "$FORMAT" == "zip" ]]; then
   command -v unzip >/dev/null || die "unzip not found in PATH"
 fi
 
-[[ -d "$REPO_ROOT/.git" ]] || die "repo root is not a git checkout: $REPO_ROOT"
+repo_toplevel="$(git -C "$REPO_ROOT" rev-parse --show-toplevel 2>/dev/null)" ||
+  die "repo root is not a git checkout: $REPO_ROOT"
+repo_root_physical="$(cd "$REPO_ROOT" && pwd -P)"
+[[ "$repo_toplevel" == "$repo_root_physical" ]] ||
+  die "script is not running from the git checkout root: $REPO_ROOT"
 git -C "$REPO_ROOT" rev-parse --verify "$REF^{commit}" >/dev/null ||
   die "git ref does not resolve to a commit: $REF"
 

@@ -143,6 +143,26 @@ write_metadata_fixture "$metadata_source"
 source_hooks="$(python3 -c 'import json; print(json.load(open("'"$REPO_ROOT"'/.codex-plugin/plugin.json")).get("hooks"))')"
 assert_equals "$source_hooks" "{}" "source Codex manifest suppresses local hook auto-discovery"
 
+linked_source="$TEST_ROOT/linked-source"
+linked_checkout="$TEST_ROOT/linked-checkout"
+linked_archive="$TEST_ROOT/linked-superpowers.zip"
+source_head="$(git -C "$REPO_ROOT" rev-parse HEAD)"
+git clone -q --no-local --no-checkout "$REPO_ROOT" "$linked_source"
+git -C "$linked_source" worktree add -q --detach "$linked_checkout" "$source_head"
+cp "$SCRIPT_UNDER_TEST" "$linked_checkout/scripts/package-codex-plugin.sh"
+
+if linked_output="$(
+  "$linked_checkout/scripts/package-codex-plugin.sh" \
+    --allow-dirty \
+    --metadata-source "$metadata_source" \
+    --output "$linked_archive" 2>&1
+)"; then
+  pass "package script works from a linked Git worktree"
+else
+  fail "package script works from a linked Git worktree"
+  printf '%s\n' "$linked_output" | sed 's/^/      /'
+fi
+
 if output="$("$SCRIPT_UNDER_TEST" --allow-dirty --metadata-source "$metadata_source" --output "$archive" 2>&1)"; then
   pass "package script exits successfully"
 else
