@@ -37,6 +37,7 @@ digraph when_to_use {
 ```
 
 **vs. Executing Plans (parallel session):**
+
 - Same session (no context switch)
 - Fresh subagent per task (no context pollution)
 - Review after each task (spec compliance + code quality), broad review at the end
@@ -73,7 +74,7 @@ digraph process {
     "More tasks remain?" [shape=diamond];
     "Dispatch final code reviewer (../requesting-code-review/code-reviewer.md)" [shape=box];
     "Final findings? ONE fix dispatch, one scoped re-review, adjudicate residuals" [shape=box];
-    "Final review clean: delete this plan's workspace" [shape=box];
+    "Final review clean: harvest ledger findings to the project backlog, commit, then delete this plan's workspace" [shape=box];
     "Use superpowers:finishing-a-development-branch" [shape=box style=filled fillcolor=lightgreen];
 
     "Setup: worktree, ledger check, read plan, pre-flight review" -> "Dispatch implementer subagent (./implementer-prompt.md)";
@@ -102,8 +103,8 @@ digraph process {
     "More tasks remain?" -> "Dispatch implementer subagent (./implementer-prompt.md)" [label="yes"];
     "More tasks remain?" -> "Dispatch final code reviewer (../requesting-code-review/code-reviewer.md)" [label="no"];
     "Dispatch final code reviewer (../requesting-code-review/code-reviewer.md)" -> "Final findings? ONE fix dispatch, one scoped re-review, adjudicate residuals";
-    "Final findings? ONE fix dispatch, one scoped re-review, adjudicate residuals" -> "Final review clean: delete this plan's workspace";
-    "Final review clean: delete this plan's workspace" -> "Use superpowers:finishing-a-development-branch";
+    "Final findings? ONE fix dispatch, one scoped re-review, adjudicate residuals" -> "Final review clean: harvest ledger findings to the project backlog, commit, then delete this plan's workspace";
+    "Final review clean: harvest ledger findings to the project backlog, commit, then delete this plan's workspace" -> "Use superpowers:finishing-a-development-branch";
 }
 ```
 
@@ -151,6 +152,16 @@ Before dispatching Task 1, scan the plan once for conflicts:
 - tasks that contradict each other or the plan's Global Constraints
 - anything the plan explicitly mandates that the review rubric treats as a
   defect (a test that asserts nothing, verbatim duplication of a logic block)
+- **plan text the design has since superseded.** If the plan cites a design or
+  spec doc, check whether that doc carries decisions added or revised _after_
+  the plan was drafted — look for dated revisions, "added after review",
+  "supersedes", or a decision numbered past the ones the plan quotes. Plan
+  prose describing a superseded decision is the highest-risk text in the
+  document: it reads as authoritative, implementers transcribe it verbatim, and
+  every scoped reviewer approves it for matching the brief. Note which tasks
+  quote it. In a real session, a decision reversed after design approval left
+  its old form in the plan's own docs task; the wrong claim reached three
+  source files and three docs before a whole-branch sweep caught it.
 
 Present everything you find to your human partner as one batched question —
 each finding beside the plan text that mandates it, asking which governs —
@@ -191,6 +202,7 @@ implementation is transcription plus testing: use the cheapest tier for
 that implementer. Single-file mechanical fixes also take the cheapest tier.
 
 **Task complexity signals (implementation tasks):**
+
 - Touches 1-2 files with a complete spec → cheap model
 - Touches multiple files with integration concerns → standard model
 - Requires design judgment or broad codebase understanding → most capable model
@@ -246,6 +258,7 @@ Implementer subagents report one of four statuses. Handle each appropriately:
 **NEEDS_CONTEXT:** The implementer needs information that wasn't provided. Provide the missing context and re-dispatch.
 
 **BLOCKED:** The implementer cannot complete the task. Assess the blocker:
+
 1. If it's a context problem, provide more context and re-dispatch with the same model
 2. If the task requires more reasoning, re-dispatch with a more capable model
 3. If the task is too large, break it into smaller pieces
@@ -294,12 +307,12 @@ needed.
   loop. If the prompt you are writing contains "do not flag," "don't treat X
   as a defect," "at most Minor," or "the plan chose" — stop: you are
   pre-judging, usually to spare yourself a review loop.
-The task reviewer may report "⚠️ Cannot verify from diff" items — requirements
-that live in unchanged code or span tasks. These do not block the rest of the
-review, but you must resolve each one yourself before marking the task
-complete: you hold the plan and cross-task context the reviewer
-lacks. If you confirm an item is a real gap, treat it as a failed spec
-review — it enters the fix loop with the other findings.
+  The task reviewer may report "⚠️ Cannot verify from diff" items — requirements
+  that live in unchanged code or span tasks. These do not block the rest of the
+  review, but you must resolve each one yourself before marking the task
+  complete: you hold the plan and cross-task context the reviewer
+  lacks. If you confirm an item is a real gap, treat it as a failed spec
+  review — it enters the fix loop with the other findings.
 
 Template: [task-reviewer-prompt.md](task-reviewer-prompt.md)
 
@@ -314,14 +327,17 @@ Before the loop starts, two routes leave it immediately:
   (`Task <N>: minor (deferred): <one-liner>`), and point the final
   whole-branch review at that list so it can triage which must be fixed
   before merge. A roll-up nobody reads is a silent discard. Minor findings
-  never enter the loop.
+  never enter the loop. Write each one to be readable months later by someone
+  without this session: name the file, and say what is wrong rather than that
+  something is. Triage decides which get fixed; Finish's harvest step is what
+  keeps the rest — the ledger itself is git-ignored and does not survive.
 - A finding labeled plan-mandated — or any finding that conflicts with
   what the plan's text requires — is the human's decision, like any plan
   contradiction: present the finding and the plan text, ask which governs.
   Do not dismiss the finding because the plan mandates it, and do not
   dispatch a fix that contradicts the plan without asking.
-Everything else enters the loop. A fix round is one fix dispatch plus one
-scoped re-review. Five rounds maximum per task:
+  Everything else enters the loop. A fix round is one fix dispatch plus one
+  scoped re-review. Five rounds maximum per task:
 
 **Rounds 1-3 — resume the original implementer.** Send it the open findings
 verbatim. Its context is intact: it knows the task, the code, and its own
@@ -358,6 +374,25 @@ minors — they never extend the loop.
 
 Never fix findings yourself in the controller session — your context stays
 clean for coordination, and controller fixes skip review.
+
+**When dispatch is unavailable.** A spend limit, quota, or outage can make
+subagent dispatch impossible mid-loop. The rule above then has no compliant
+path, so it yields — but only under a disclosure contract. First confirm the
+tree: a killed subagent may have left partial edits, so check `git status` and
+`git log` before touching anything. Then, if you fix directly, all four of:
+
+1. Name the fix in the commit body as controller-applied and unreviewed.
+2. Append `Task <N>: UNREVIEWED — <what you fixed> — reason: <why dispatch
+failed>` to the ledger.
+3. Verify harder than a reviewer would, because no one else will: run the
+   covering tests, and for any regression test guarding a _silent_ failure,
+   prove it discriminates — remove the fix, confirm the test fails, restore it,
+   confirm no residue.
+4. Surface it as a named caveat at finish, not a footnote. Your human partner
+   is now the review.
+
+Waiting for the budget to reset is also valid. What is never valid is fixing
+directly and reporting the result as reviewed.
 
 **The breaker.** When round 5's re-review still leaves findings open, stop
 dispatching. Adjudicate each open finding yourself — you hold the plan and
@@ -414,6 +449,33 @@ superpowers:requesting-code-review's
 the ledger's deferred-minor and parked lines so it can triage which must be
 fixed before merge.
 
+### Cross-cutting sweeps
+
+This review is the only one that can see the whole branch, so give it the
+questions only a whole-branch view can answer. A defect whose _cause_ sits in a
+file this branch changed and whose _symptom_ sits in a file no task touched is
+invisible to every scoped reviewer by construction — each one saw a correct
+diff and approved it.
+
+Derive a short list of sweep questions from the branch diff and hand them to
+the final reviewer as named checks. Common generators:
+
+- **A new table, column, or entity** → which existing delete, archive, cascade,
+  or cleanup paths must learn about it? Does this project actually _enforce_
+  the constraint it declares, or is the declaration decorative?
+- **A decision revised late** (see the pre-flight scan) → grep the branch for
+  prose, comments, or commit messages still asserting the superseded form.
+- **A new parameter on a shared function** → is every call site updated, or do
+  some silently take a default?
+- **A new export** → who consumes it? Is it dead, or duplicating something?
+- **A new effect, cache, or piece of state in a shared component** → does an
+  existing effect need the new dependency?
+
+Two real defects escaped eleven scoped reviews on one branch this way: a
+declared `ON DELETE CASCADE` that the runtime never enforced, so four
+untouched delete paths silently stranded rows; and a superseded design claim
+that had spread to six files. Both were one sweep question away.
+
 If the final whole-branch review returns findings, dispatch ONE fix subagent
 with the complete findings list — not one fixer per finding.
 Per-finding fixers each rebuild context and re-run suites; a real
@@ -428,25 +490,62 @@ finishing-a-development-branch presents the options.
 
 ## Finish
 
-When the final whole-branch review is clean and its fixes are merged,
-delete this plan's workspace (`rm -rf <workspace>`) — the git history is
-the record now. Sibling directories belong to other plans; leave them
-alone.
+### 1. Harvest the ledger — before deleting anything
 
-Use superpowers:finishing-a-development-branch.
+Git holds the code and the fixes. It does **not** hold the findings you chose
+not to fix: deferred minors, parked findings with their rulings, accepted
+deviations, plan defects you ruled on, and anything marked UNREVIEWED. Those
+exist only in a git-ignored file you are about to delete. Deleting the
+workspace without harvesting is the silent discard this skill forbids
+everywhere else.
+
+Read the ledger and pull every line that is a _finding_ rather than
+bookkeeping — `minor (deferred)`, `parked`, `DEVIATION`, `PLAN DEFECT`,
+`UNREVIEWED`, `BLOCKED`, and any controller ruling. Then write them somewhere
+committed:
+
+- Find the project's own convention first. Its agent-context file
+  (`AGENTS.md`, `CLAUDE.md`) or its notes tree usually names a backlog, an
+  ideas file, or a code-review-report lifecycle. Use it — a harvest filed
+  where the project already looks is one the project will actually read.
+- Absent a convention, ask your human partner where these should live rather
+  than inventing a file they will never open.
+- Group by what a reader would act on (user-visible, correctness, tests,
+  cosmetic), keep each item to a line or two with enough location to act on,
+  and say where they came from.
+- Commit the harvest.
+
+Findings already fixed on the branch need no harvest — the diff and the
+commit messages carry those.
+
+### 2. Delete the workspace
+
+Only once the harvest is committed: `rm -rf <workspace>`. Sibling directories
+belong to other plans; leave them alone.
+
+### 3. Hand off
+
+Use superpowers:finishing-a-development-branch. Carry any UNREVIEWED ledger
+entry into that conversation as a named caveat — it is your human partner's
+call whether to merge work no second pair of eyes has seen.
 
 ## Common Rationalizations
 
-| Excuse | Reality |
-|--------|---------|
-| "Close enough on spec compliance" | Reviewer found spec gaps = not done. Fix or hit the cap and adjudicate — those are the only exits. |
-| "I'll fix it myself, dispatching is overhead" | Controller fixes pollute your context and skip review. Resume the implementer. |
-| "One more round will converge" | Past the cap, rounds don't converge — the failure is structural. Adjudicate and route. |
-| "The reviewer will just find something new anyway" | Scoped re-reviews verify fixes; they cannot wander. New findings on untouched code go to the ledger, not the loop. |
-| "This finding is obviously wrong, I'll drop it" | You adjudicate only at the cap, and every ruling is a ledger entry. Silent discards are forbidden. |
-| "The fix was small, skip the re-review" | Unreviewed fixes are how regressions land. Every round ends with a scoped re-review. |
-| "Reviews slow the loop down" | The loop without reviews is just unverified churn. Reviews are the loop's brakes and steering. |
-| "Durable-state bookkeeping is overhead" | The plan-scoped ledger survives compaction; the committed plan survives across sessions. Controllers without both have re-dispatched completed tasks or lost visible progress. |
+| Excuse                                                 | Reality                                                                                                                                                                          |
+| ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| "Close enough on spec compliance"                      | Reviewer found spec gaps = not done. Fix or hit the cap and adjudicate — those are the only exits.                                                                               |
+| "I'll fix it myself, dispatching is overhead"          | Controller fixes pollute your context and skip review. Resume the implementer.                                                                                                   |
+| "One more round will converge"                         | Past the cap, rounds don't converge — the failure is structural. Adjudicate and route.                                                                                           |
+| "The reviewer will just find something new anyway"     | Scoped re-reviews verify fixes; they cannot wander. New findings on untouched code go to the ledger, not the loop.                                                               |
+| "This finding is obviously wrong, I'll drop it"        | You adjudicate only at the cap, and every ruling is a ledger entry. Silent discards are forbidden.                                                                               |
+| "The fix was small, skip the re-review"                | Unreviewed fixes are how regressions land. Every round ends with a scoped re-review.                                                                                             |
+| "Reviews slow the loop down"                           | The loop without reviews is just unverified churn. Reviews are the loop's brakes and steering.                                                                                   |
+| "Durable-state bookkeeping is overhead"                | The plan-scoped ledger survives compaction; the committed plan survives across sessions. Controllers without both have re-dispatched completed tasks or lost visible progress.   |
+| "The git history is the record — delete the workspace" | Git has the code and the fixes. It never had the findings you chose _not_ to fix. Harvest first, then delete.                                                                    |
+| "The final review already triaged the minors"          | Triage picks which to fix. The ones it declines still need a committed home, or the `rm -rf` discards them.                                                                      |
+| "Every task review passed, so the branch is clean"     | Scoped reviewers cannot see a defect whose symptom lives in a file no task touched. That is what the cross-cutting sweeps are for.                                               |
+| "The plan says it, so it's correct"                    | Plans are written before the code and go stale when a decision changes after drafting. Doc prose in a plan is the likeliest thing to be wrong and the least likely to be caught. |
+| "Dispatch is down, so I'll just fix it and move on"    | You may fix it. You may not call it reviewed. Commit body, ledger `UNREVIEWED` line, discriminating-test proof, and a named caveat at finish — all four.                         |
 
 ## Example Workflow
 
@@ -514,7 +613,8 @@ Re-reviewer: Missing progress reporting — ADDRESSED (src/recovery.js:41).
 [Run review-package PLAN_FILE MERGE_BASE HEAD; dispatch final code-reviewer, most capable model]
 Final reviewer: All requirements met. Deferred minors triaged: none block merge.
 
-[Delete this plan's workspace — the record now lives in git]
+[Harvest the ledger's deferred/parked findings into the project's backlog, commit]
+[Delete this plan's workspace — the code is in git, the findings are in the backlog]
 
 Done! Using superpowers:finishing-a-development-branch.
 ```

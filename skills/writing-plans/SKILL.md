@@ -46,9 +46,33 @@ deliverable needs them; split only where a reviewer could meaningfully
 reject one task while approving its neighbor. Each task ends with an
 independently testable deliverable.
 
+## Documentation Tasks Specify Facts, Not Sentences
+
+A plan is written before the code exists, so its prose goes stale the moment a
+decision changes after drafting — and it goes stale _invisibly_. An implementer
+transcribes a paragraph faithfully; a task reviewer approves it because it
+matches the brief. Nothing in the loop compares that paragraph to the code that
+actually shipped.
+
+So a documentation task lists **the facts the docs must end up asserting** and
+**which file must assert each one** — never the paragraphs to paste. If the
+project has a docs-updating skill or command, invoking it is the task's first
+step, and the fact list becomes the verification checklist rather than the input.
+
+- Bad: a fenced block of finished Markdown for the implementer to copy.
+- Good: "AGENTS.md must state that resolution reads the navigated line and
+  builds no graph, and that the counts are the graph-backed exception. Derive
+  the wording from the shipped code, not from this plan."
+
+In a real session, a plan shipped a paragraph asserting a design rule that a
+late revision had already reversed. It reached three source files and three
+docs and passed every scoped review, because every reviewer was checking
+transcription accuracy against the plan — the one document that was wrong.
+
 ## Bite-Sized Task Granularity
 
 **Each step is one action (2-5 minutes):**
+
 - "Write the failing test" - step
 - "Run it to make sure it fails" - step
 - "Implement the minimal code to make the test pass" - step
@@ -86,11 +110,13 @@ include this section.]
 ### Task N: [Component Name]
 
 **Files:**
+
 - Create: `exact/path/to/file.py`
 - Modify: `exact/path/to/existing.py:123-145`
 - Test: `tests/exact/path/to/test.py`
 
 **Interfaces:**
+
 - Consumes: [what this task uses from earlier tasks — exact signatures]
 - Produces: [what later tasks rely on — exact function names, parameter
   and return types. A task's implementer sees only their own task; this
@@ -132,6 +158,7 @@ git commit -m "feat: add specific feature"
 ## No Placeholders
 
 Every step must contain the actual content an engineer needs. These are **plan failures** — never write them:
+
 - "TBD", "TODO", "implement later", "fill in details"
 - "Add appropriate error handling" / "add validation" / "handle edge cases"
 - "Write tests for the above" (without actual test code)
@@ -164,9 +191,11 @@ After saving the plan, offer execution choice:
 **Which approach?"**
 
 **If Subagent-Driven chosen:**
+
 - **REQUIRED SUB-SKILL:** Use superpowers:subagent-driven-development
 - Fresh subagent per task + two-stage review
 
 **If Inline Execution chosen:**
+
 - **REQUIRED SUB-SKILL:** Use superpowers:executing-plans
 - Batch execution with checkpoints for review
