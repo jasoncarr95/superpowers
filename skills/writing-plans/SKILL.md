@@ -104,6 +104,42 @@ include this section.]
 ---
 ```
 
+## Plan Document Footer: Session Handoff
+
+**Every plan MUST end with a `## Session Handoff` section**, written in the
+same turn as the rest of the plan and committed with it — never as a separate
+step or a follow-up turn. It exists so your human partner can close this
+session and execute the plan in a fresh one without losing anything. Two
+parts, in order:
+
+**1. Starter prompt** — a fenced block your human partner copies to launch
+the fresh session. Derive the wording from this plan (facts, not fixed
+sentences). It must convey:
+
+- The plan document's path.
+- The spec/design document's path (omit if none exists).
+- The executor skill to invoke: superpowers:subagent-driven-development
+  (or superpowers:executing-plans if this plan calls for inline execution).
+- An instruction to read the plan's Session Handoff section first, then
+  begin at the first unchecked task, updating checkboxes as work completes.
+
+**2. "Don't forget" list** — up to ~8 bullets restricted to items that do
+NOT belong in the plan itself:
+
+- Manual steps your human partner must do personally (accounts, approvals,
+  hardware).
+- Ideas explicitly deferred out of scope during planning.
+- Environment gotchas discovered during planning that don't affect any task.
+- Post-implementation follow-ups (docs elsewhere, people to tell, projects
+  this unblocks).
+
+Never pad — one real item beats three invented ones. If nothing qualifies,
+write the single line: "None — everything is captured in the plan and spec."
+
+**If an item would change how any task is implemented, it goes into the
+plan, not the handoff.** The handoff is a pointer plus reminders — never a
+second copy of plan content.
+
 ## Task Structure
 
 ````markdown
@@ -180,22 +216,32 @@ If you find issues, fix them inline. No need to re-review — just fix and move 
 
 ## Execution Handoff
 
-After saving the plan, offer execution choice:
+The plan already ends with a `## Session Handoff` section written during
+plan creation. Never spend a turn generating handoff content here — no
+subagent dispatch, no re-reading files, no invoking another skill. By the
+time you reach this point, the handoff exists.
 
-**"Plan complete and saved to `<plan path>`. Two execution options:**
+After saving the plan, end with an informational message — NOT a blocking
+question — containing:
 
-**1. Subagent-Driven (recommended)** - I dispatch a fresh subagent per task, review between tasks, fast iteration
+1. The starter prompt from the plan's Session Handoff section, in a fenced
+   block, copyable straight from the terminal.
+2. The execution options, requiring no reply for the fresh-session path:
 
-**2. Inline Execution** - Execute tasks in this session using executing-plans, batch execution with checkpoints
+**"Plan saved to `<plan path>`. Recommended: start a fresh session with the
+prompt above — it executes the plan with subagent-driven development on a
+clean context. Or, to execute here instead, say 'go' (subagent-driven) or
+'inline' (executing-plans)."**
 
-**Which approach?"**
+If your human partner starts a fresh session, this session is done. If they
+reply here instead:
 
-**If Subagent-Driven chosen:**
+**If 'go' (Subagent-Driven):**
 
 - **REQUIRED SUB-SKILL:** Use superpowers:subagent-driven-development
 - Fresh subagent per task + two-stage review
 
-**If Inline Execution chosen:**
+**If 'inline' (Inline Execution):**
 
 - **REQUIRED SUB-SKILL:** Use superpowers:executing-plans
 - Batch execution with checkpoints for review
