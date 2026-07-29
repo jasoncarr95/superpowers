@@ -162,6 +162,18 @@ Before dispatching Task 1, scan the plan once for conflicts:
   quote it. In a real session, a decision reversed after design approval left
   its old form in the plan's own docs task; the wrong claim reached three
   source files and three docs before a whole-branch sweep caught it.
+- **the plan's literals and citations, checked against the codebase.** The
+  three checks above read the plan against itself and its docs; this one reads
+  it against reality. Run the plan's fixture values through the real library
+  (a FEN through the chess engine, a date through the parser — an invalid
+  fixture often degrades a test silently rather than erroring). Grep for every
+  helper, import path, and signature the plan cites; confirm each exists under
+  that name with that arity. Where a step's prose and its sample code
+  disagree, the prose is usually the intent and the code is the bug. In a real
+  session a plan was wrong six times — invalid FEN fixtures that would have
+  made a test assert nothing, an import that didn't exist, a cache callback
+  that evicted the wrong entry — and four of the six were mechanically
+  detectable in about five minutes of this check.
 
 Present everything you find to your human partner as one batched question —
 each finding beside the plan text that mandates it, asking which governs —
@@ -265,6 +277,16 @@ Implementer subagents report one of four statuses. Handle each appropriately:
 4. If the plan itself is wrong, escalate to the human
 
 **Never** ignore an escalation or force the same model to retry without changes. If the implementer said it's stuck, something needs to change.
+
+**A "pre-existing failure" claim requires proof.** When any report attributes
+a test failure to the baseline — "environmental", "flaky", "was already
+failing" — do not accept the claim on the implementer's word. Run the same
+test file in a clean worktree at the pre-task SHA (`git worktree add <tmp>
+<sha>`) and quote both results side by side; only a failure reproduced there
+is pre-existing. In a real session an implementer reported full-suite
+failures as environmental pollution; the clean worktree showed 15 pass /
+0 fail before their diff and 8 failures on it — a real single-file
+regression, minutes from being accepted as noise.
 
 If the implementer asks questions — before starting or mid-task — answer
 clearly and completely, provide additional context if needed, and don't
@@ -545,6 +567,7 @@ call whether to merge work no second pair of eyes has seen.
 | "The final review already triaged the minors"          | Triage picks which to fix. The ones it declines still need a committed home, or the `rm -rf` discards them.                                                                      |
 | "Every task review passed, so the branch is clean"     | Scoped reviewers cannot see a defect whose symptom lives in a file no task touched. That is what the cross-cutting sweeps are for.                                               |
 | "The plan says it, so it's correct"                    | Plans are written before the code and go stale when a decision changes after drafting. Doc prose in a plan is the likeliest thing to be wrong and the least likely to be caught. |
+| "That test failure was already there"                  | A pre-existing-failure claim without a clean-worktree run at the pre-task SHA is an alibi, not a finding. Reproduce it there or treat it as a regression.                        |
 | "Dispatch is down, so I'll just fix it and move on"    | You may fix it. You may not call it reviewed. Commit body, ledger `UNREVIEWED` line, discriminating-test proof, and a named caveat at finish — all four.                         |
 
 ## Example Workflow
