@@ -212,6 +212,8 @@ After writing the complete plan, look at the spec with fresh eyes and check the 
 
 **3. Type consistency:** Do the types, method signatures, and property names you used in later tasks match what you defined in earlier tasks? A function called `clearLayers()` in Task 3 but `clearFullLayers()` in Task 7 is a bug.
 
+**4. Reality check against the codebase:** The three checks above read the plan against itself; this one reads it against the repo. Run every fixture literal through the real library it targets (an invalid fixture often degrades a test silently instead of erroring). Grep for every existing helper, import path, and signature the plan cites — confirm each exists under that name with that arity. Implementers transcribe plan code verbatim and reviewers approve it for matching the brief, so a wrong literal here survives every later gate.
+
 If you find issues, fix them inline. No need to re-review — just fix and move on. If you find a spec requirement with no task, add the task.
 
 ## Execution Handoff

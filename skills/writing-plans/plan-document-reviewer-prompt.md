@@ -23,6 +23,7 @@ Subagent (general-purpose):
     | Spec Alignment | Plan covers spec requirements, no major scope creep |
     | Task Decomposition | Tasks have clear boundaries, steps are actionable |
     | Buildability | Could an engineer follow this plan without getting stuck? |
+    | Codebase Reality | Do cited helpers/imports/signatures exist in the repo as named? Are fixture literals valid inputs for the library they target? |
 
     ## Calibration
 
