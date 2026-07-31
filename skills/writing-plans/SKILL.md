@@ -26,6 +26,10 @@ Assume they are a skilled developer, but know almost nothing about our toolset o
 
 If the spec covers multiple independent subsystems, it should have been broken into sub-project specs during brainstorming. If it wasn't, suggest breaking this into separate plans — one per subsystem. Each plan should produce working, testable software on its own.
 
+## Open Product Calls
+
+If the spec leaves product decisions open, interview your human partner before writing tasks — plans built on guessed product calls get rewritten. When a question hinges on a product object that doesn't exist in the app yet (something this feature would create), ground it per the brainstorming skill's visual-companion guide, section "Ground in the Real Product": real screenshots of the current app, mockups only for the delta, labeled real-vs-mock, and the proposed logic dry-run against the user's real data. A plan pre-flight that must verify literals anyway often doubles as this interview material.
+
 ## File Structure
 
 Before defining tasks, map out which files will be created or modified and what each one is responsible for. This is where decomposition decisions get locked in.
