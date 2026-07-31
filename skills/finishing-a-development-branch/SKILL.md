@@ -7,7 +7,7 @@ description: Use when implementation is complete, all tests pass, and you need t
 
 ## Overview
 
-**Core principle:** Verify tests → Update docs → Detect environment → Present options → Execute choice → Clean up.
+**Core principle:** Verify tests → Update docs → Detect environment → Present options → Execute choice → Clean up → Wrap the session.
 
 **Announce at start:** "I'm using the finishing-a-development-branch skill to complete this work."
 
@@ -194,6 +194,20 @@ git worktree prune  # Self-healing: clean up any stale registrations
 
 **Otherwise:** The host environment owns this workspace — leave it in
 place. If your platform provides a workspace-exit tool, use it.
+
+## Step 8: Session Wrap
+
+After the integration choice has executed (any option), close the loop on
+session knowledge:
+
+- If a `wrap-session` skill is available in this environment, invoke it —
+  it audits durability, emits a fresh-session starter prompt, and runs a
+  process retro.
+- Otherwise, when open work remains (PR awaiting merge, deferred
+  follow-ups, a planned next chunk), end your final message with a fenced
+  copy-paste starter prompt for the next session — pointers, not prose:
+  the goal in one sentence, preconditions to verify first, exact files to
+  read, and any constraint a fresh session cannot infer.
 
 ## Quick Reference
 
