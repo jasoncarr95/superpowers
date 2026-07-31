@@ -1,3 +1,13 @@
+> **This checkout is Jason's personal fork** (`origin` = `jasoncarr95/superpowers`, working
+> branch `yason`; `upstream` = `obra/superpowers`). It is installed live as
+> `superpowers@jason-tools` via the `jason-tools` marketplace in
+> `~/projects/ai-agent-config` — **pushed commits on `yason` deploy directly to the
+> installed plugin.** Merge upstream **release tags** (`main`) only, never `dev`; use the
+> `maintain-superpowers-fork` skill for syncs. Fork invariants:
+> `ai-agent-config/skills/personal/maintain-superpowers-fork/references/fork-invariants.md`.
+> The contributor guidelines below are upstream's — they apply when sending work upstream,
+> not to fork-local commits on `yason`.
+
 # Superpowers — Contributor Guidelines
 
 ## If You Are an AI Agent
