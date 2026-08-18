@@ -98,6 +98,9 @@ transcription accuracy against the plan — the one document that was wrong.
 
 **Tech Stack:** [Key technologies/libraries]
 
+**Spec:** [path to the spec/design doc this plan implements — the plan
+argues from the spec, so the spec travels with it; executors read both]
+
 ## Global Constraints
 
 [The spec's project-wide requirements — version floors, dependency limits,
