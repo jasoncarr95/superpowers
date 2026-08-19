@@ -5,6 +5,9 @@
 > installed plugin.** Merge upstream **release tags** (`main`) only, never `dev`; use the
 > `maintain-superpowers-fork` skill for syncs. Fork invariants:
 > `ai-agent-config/skills/personal/maintain-superpowers-fork/references/fork-invariants.md`.
+> When you land a deliberate behavior customization on `yason`, add a matching row to that
+> fork-invariants file in the same session — unlisted customizations risk being wrongly
+> retired at the next upstream sync.
 > The contributor guidelines below are upstream's — they apply when sending work upstream,
 > not to fork-local commits on `yason`.
 
