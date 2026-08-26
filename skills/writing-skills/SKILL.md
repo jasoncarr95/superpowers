@@ -392,6 +392,21 @@ Edit skill without testing? Same violation.
 
 **REQUIRED BACKGROUND:** The superpowers:test-driven-development skill explains why this matters. Same principles apply to documentation.
 
+### What Satisfies RED
+
+Exactly two things count as the failing test. Nothing else does.
+
+**Path A — baseline scenario.** Run the pressure scenario against a subagent without the skill and watch it fail. Default path; see RED-GREEN-REFACTOR below.
+
+**Path B — documented field evidence.** The failure already happened in real work. Qualifies only if you can produce BOTH, right now, in the commit message:
+
+1. **A named source a reader can open** — the specific session, audit, PR, or incident, with a date and a locator (commit SHA, transcript path, report path, issue number).
+2. **The verbatim failure it produced** — the actual wrong output, decision, or rationalization, quoted. Not summarized, not characterized.
+
+Can't produce both? You have a recollection, not evidence. Run Path A.
+
+Path B replaces the **baseline scenario only**. If the edit shapes future behavior rather than recording a fact, you still micro-test the wording against a no-guidance control before shipping (see Micro-Test Wording below).
+
 ## Testing All Skill Types
 
 Different skill types need different test approaches:
@@ -453,6 +468,7 @@ Different skill types need different test approaches:
 | "I'm confident it's good" | Overconfidence guarantees issues. Test anyway. |
 | "Academic review is enough" | Reading ≠ using. Test application scenarios. |
 | "No time to test" | Deploying untested skill wastes more time fixing it later. |
+| "RED already happened in the wild" | Only with a named source (date + locator) AND the verbatim failure quoted, both in the commit message. "I've seen this go wrong before" is a recollection — run the baseline. |
 
 **All of these mean: Test before deploying. No exceptions.**
 
@@ -630,7 +646,7 @@ Deploying untested skills = deploying untested code. It's a violation of quality
 
 **RED Phase - Write Failing Test:**
 - [ ] Create pressure scenarios (3+ combined pressures for discipline skills)
-- [ ] Run scenarios WITHOUT skill - document baseline behavior verbatim
+- [ ] Run scenarios WITHOUT skill - document baseline behavior verbatim — OR cite documented field evidence in the commit message: named source (date + locator) AND the verbatim failure quoted (see What Satisfies RED)
 - [ ] Identify patterns in rationalizations/failures
 
 **GREEN Phase - Write Minimal Skill:**
