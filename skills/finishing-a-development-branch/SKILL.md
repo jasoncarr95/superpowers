@@ -7,7 +7,7 @@ description: Use when implementation is complete, all tests pass, and you need t
 
 ## Overview
 
-**Core principle:** Verify tests → Update docs → Detect environment → Present options → Execute choice → Clean up → Wrap the session.
+**Core principle:** Verify tests → Update docs → Detect environment → Resolve the integration choice → Execute it → Clean up → Wrap the session, all in one turn.
 
 **Announce at start:** "I'm using the finishing-a-development-branch skill to complete this work."
 
@@ -55,11 +55,11 @@ WORKTREE_PATH=$(git rev-parse --show-toplevel)
 
 This determines which menu to show and how cleanup works:
 
-| State                                  | Menu                         | Cleanup                             |
-| -------------------------------------- | ---------------------------- | ----------------------------------- |
-| `GIT_DIR == GIT_COMMON` (normal repo)  | Standard 3 options           | No worktree to clean up             |
-| `GIT_DIR != GIT_COMMON`, named branch  | Standard 3 options           | Provenance-based (see Step 6)       |
-| `GIT_DIR != GIT_COMMON`, detached HEAD | Reduced 2 options (no merge) | Externally managed — leave in place |
+| State                                  | Integration choice                          | Cleanup                             |
+| -------------------------------------- | ------------------------------------------- | ----------------------------------- |
+| `GIT_DIR == GIT_COMMON` (normal repo)  | PR default; standard 3-option menu fallback | No worktree to clean up             |
+| `GIT_DIR != GIT_COMMON`, named branch  | PR default; standard 3-option menu fallback | Provenance-based (see Step 6)       |
+| `GIT_DIR != GIT_COMMON`, detached HEAD | Reduced 2-option menu (no merge)            | Externally managed — leave in place |
 
 ## Step 4: Determine Base Branch
 
@@ -68,7 +68,24 @@ plan, the conversation, or the branch's upstream. If it is not already
 known, ask: "This branch split from <your best guess> - is that correct?"
 Confirm before merging: merging into the wrong base is expensive to undo.
 
-## Step 5: Present Options
+## Step 5: Resolve the Integration Choice
+
+Take the first of these that applies:
+
+1. **Your human partner already named the choice** in this conversation
+   ("push and open a PR", "merge it locally", "leave the branch for now").
+   Execute that. Their words win over every default below.
+2. **Fork preference (standing, no need to re-ask):** on a named branch in
+   a repo with a remote (`git remote get-url origin` succeeds), the
+   integration choice is **Option 2 — push and create a Pull Request**.
+   Execute it without presenting the menu. The decision was made once, as
+   a standing preference; re-asking it at every finish only inserts a turn
+   boundary between the integration step and the wrap.
+3. **Otherwise present the menu:** detached HEAD, no remote, or a partner
+   instruction you cannot map to an option. Ask it through the
+   AskUserQuestion tool when this environment has one, so the answer comes
+   back inside this turn and the remaining steps run without a hand-off;
+   without that tool, print the menu and wait.
 
 **Normal repo and named-branch worktree — present exactly these 3 options:**
 
@@ -93,11 +110,12 @@ Implementation complete. You're on a detached HEAD (externally managed workspace
 Which option?
 ```
 
-Present the menu exactly as written — concise, with every option coming
-from the list above. Discarding the work happens only in response to your
-human partner explicitly asking for it (see "If your human partner asks to
-discard the work" below). Wait for their answer; the integration decision
-is theirs.
+When a menu is due, present it exactly as written — concise, with every
+option coming from the list above — and wait for the answer. Merging
+locally and discarding are never defaults: a local merge happens only when
+your human partner names it, and discarding only in response to their
+explicit request (see "If your human partner asks to discard the work"
+below).
 
 ## Step 6: Execute Choice
 
@@ -128,6 +146,8 @@ delete the branch:
 git branch -d <feature-branch>
 ```
 
+Then continue to Step 8 in this same turn.
+
 ### Option 2: Push and Create PR
 
 ```bash
@@ -142,10 +162,13 @@ print when you push — following the repo's PR template and conventions if
 present, and report the URL to your human partner.
 
 Keep the worktree — your human partner iterates on PR feedback there.
+Then continue to Step 8 in this same turn — the PR URL is not the end of
+the finish.
 
 ### Option 3: Keep As-Is
 
-Report: "Keeping branch <name>. Worktree preserved at <path>."
+Report: "Keeping branch <name>. Worktree preserved at <path>." Then
+continue to Step 8 in this same turn.
 
 ### If your human partner asks to discard the work
 
@@ -220,8 +243,9 @@ place. If your platform provides a workspace-exit tool, use it.
 
 ## Step 8: Session Wrap
 
-After the integration choice has executed (any option), close the loop on
-session knowledge:
+After the integration choice has executed (any option), and in the same
+turn — the wrap is part of finishing, not a follow-up your human partner
+has to ask for — close the loop on session knowledge:
 
 - If a `wrap-session` skill is available in this environment, invoke it —
   it audits durability, emits a fresh-session starter prompt, and runs a
@@ -236,9 +260,9 @@ session knowledge:
 
 | Option                          | Merge | Push | Keep Worktree | Cleanup Branch |
 | ------------------------------- | ----- | ---- | ------------- | -------------- |
-| 1. Merge locally                | yes   | -    | -             | yes            |
-| 2. Create PR                    | -     | yes  | yes           | -              |
-| 3. Keep as-is                   | -     | -    | yes           | -              |
+| 1. Merge locally (on request)   | yes   | -    | -             | yes            |
+| 2. Create PR (standing default) | -     | yes  | yes           | -              |
+| 3. Keep as-is (on request)      | -     | -    | yes           | -              |
 | Discard (explicit request only) | -     | -    | -             | yes (force)    |
 
 ## Common Rationalizations
@@ -247,7 +271,9 @@ session knowledge:
 | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
 | "Tests passed earlier this session"                           | Run the suite on the tree you are about to integrate. A green run only proves the tree it ran on.                                          |
 | "Docs can wait until after the merge"                         | Docs-before-merge is the convention: changelog, board refresh, and harvest run in the branch (Step 2). Post-merge docs chores get skipped. |
-| "They obviously want it merged"                               | Integration is your human partner's decision. Present the menu and wait.                                                                   |
+| "They obviously want it merged"                               | Merging and discarding happen only in your human partner's words. The standing default is push + PR; nothing else runs unasked.            |
+| "Better to ask than assume — I'll show the menu anyway"       | The PR default is a standing decision recorded here. Re-asking inserts the turn boundary that drops the wrap. Menu only for the fallbacks.  |
+| "The PR is up — the wrap can wait until they ask"             | Step 8 runs in the same turn as the integration step. A finish that stops at the PR URL is unfinished.                                     |
 | "They seem done with this feature — I'll offer to discard it" | The menu is complete as written. Discard happens only when your human partner asks for it in so many words.                                |
 | "'Yeah, get rid of it' counts as confirmation"                | Only the typed word `discard` authorizes deletion.                                                                                         |
 | "The PR is up, so the worktree is clutter now"                | PR feedback gets fixed in that worktree. It stays until the work lands.                                                                    |
