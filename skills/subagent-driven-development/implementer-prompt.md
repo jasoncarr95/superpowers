@@ -143,6 +143,12 @@ Subagent (general-purpose):
     Write your full report to [REPORT_FILE]:
     - What you implemented (or what you attempted, if blocked)
     - What you tested and test results
+    - Any claim that a failure is pre-existing, flaky, or environmental
+      must ship its proof in the report: the same test run in a clean
+      worktree at the base SHA (`git worktree add <tmp> <BASE>`) or re-run
+      at the same commit, with both outputs quoted side by side. An
+      isolation run ("passes on its own") proves nothing about the
+      baseline, and the claim will not be accepted without this evidence.
     - **TDD Evidence** (if TDD was required for this task):
       - RED: command run, relevant failing output before implementation, and why the failure was expected
       - GREEN: command run and relevant passing output after implementation
