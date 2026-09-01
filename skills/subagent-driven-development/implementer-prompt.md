@@ -39,6 +39,9 @@ Subagent (general-purpose):
     5. Self-review (see below)
     6. Report back
 
+    Implement ONLY this task. Later tasks are dispatched separately — even
+    when your context mentions them, they are not yours to start.
+
     Work from: [directory]
 
     **While you work:** If you encounter something unexpected or unclear, **ask questions**.
@@ -46,6 +49,16 @@ Subagent (general-purpose):
 
     While iterating, run the focused test for what you're changing; run the
     full suite once before committing, not after every edit.
+
+    ## Working-Tree Discipline
+
+    Never run `git stash`, `git checkout`, `git restore`, or `git clean`
+    against the working tree — it may hold uncommitted work that is not
+    yours. To run a test against pre-change code (RED evidence for a new
+    test, or a baseline comparison), temporarily revert your own edit with
+    your file-edit tool and re-apply it afterwards, or read the old version
+    with `git show <sha>:<path>`. A stash is never the way to run new tests
+    against old code.
 
     ## You Do Not Dispatch Subagents
 
