@@ -210,6 +210,15 @@ what you checked as you check it:
   survived all ten task reviews into the live smoke — where the adapter's
   correct 404 briefly read as a failure — and got transcribed into a unit
   test's provider pairing.
+- **external-world assumptions the plan defers to a later task.** When a
+  later step says to verify something against a live service but hedges it
+  ("informational; do not gate the commit on it"), the assumption will
+  ship verified by nothing. If the service is reachable, verify it NOW
+  with a few read-only calls and record what came back. In a real session
+  four pre-flight curls confirmed — among other deferred assumptions — the
+  missing-record response shape an entire branch of the diff logic
+  depended on; had it been wrong, live user data would have been
+  duplicated, and the plan's own verification step gated nothing.
 
 The scan's output is a table, not a verdict. One row for every pair of tasks
 that share a file or an interface: the two tasks, what one produces against
