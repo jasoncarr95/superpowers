@@ -62,15 +62,16 @@ Each agent gets:
 - **Clear goal:** Make these tests pass
 - **Constraints:** Don't change other code
 - **Expected output:** Summary of what you found and fixed
+- **An explicit model:** chosen per the Model Selection section of superpowers:subagent-driven-development (search agents and mechanical tasks: cheap tier; judgment work: standard tier). Name it when announcing the dispatch — an omitted model silently inherits your session's model.
 
 ### 3. Dispatch in Parallel
 
 Issue all three subagent dispatches in the same response — they run in parallel:
 
 ```text
-Subagent (general-purpose): "Fix agent-tool-abort.test.ts failures"
-Subagent (general-purpose): "Fix batch-completion-behavior.test.ts failures"
-Subagent (general-purpose): "Fix tool-approval-race-conditions.test.ts failures"
+Subagent (general-purpose, model: sonnet): "Fix agent-tool-abort.test.ts failures"
+Subagent (general-purpose, model: sonnet): "Fix batch-completion-behavior.test.ts failures"
+Subagent (general-purpose, model: sonnet): "Fix tool-approval-race-conditions.test.ts failures"
 # All three run concurrently.
 ```
 
