@@ -89,7 +89,7 @@ your path and complete them in order.
 2. **Ask clarifying questions** — one at a time, the ones that matter
 3. **Present short design in chat** — approach, files touched, testing
 4. **Get approval** — STOP and wait for an explicit yes; presenting the design and starting in the same breath is skipping the gate
-5. **Implement** — proceed with the normal development workflow (TDD applies); no plan document
+5. **Implement** — proceed with the normal development workflow (TDD applies); no plan document — unless the session ends before implementation begins, in which case write the design and task checklist to the repo's planning-docs location before wrapping
 
 **Architectural:**
 1. **Explore project context** — check files, docs, recent commits
@@ -112,7 +112,7 @@ digraph brainstorming {
     "Present short design in chat" [shape=box];
     "Human approves?" [shape=diamond];
     "Investigate; report recommendation" [shape=doublecircle];
-    "Implement via normal workflow (no plan doc)" [shape=doublecircle];
+    "Implement via normal workflow (no plan doc;\nsession ending first? write design out)" [shape=doublecircle];
     "Explore project context" [shape=box];
     "Ask clarifying questions" [shape=box];
     "Propose 2-3 approaches" [shape=box];
@@ -131,7 +131,7 @@ digraph brainstorming {
     "Ask clarifying questions (bounded)" -> "Present short design in chat";
     "Present short design in chat" -> "Human approves?";
     "Human approves?" -> "Investigate; report recommendation" [label="spike: yes"];
-    "Human approves?" -> "Implement via normal workflow (no plan doc)" [label="bounded: yes"];
+    "Human approves?" -> "Implement via normal workflow (no plan doc;\nsession ending first? write design out)" [label="bounded: yes"];
     "Hidden complexity? Upgrade path" -> "Classify: spike / bounded / architectural";
     "Explore project context" -> "Ask clarifying questions";
     "Ask clarifying questions" -> "Propose 2-3 approaches";
@@ -150,8 +150,10 @@ digraph brainstorming {
 invoke after brainstorming is writing-plans — never frontend-design,
 mcp-builder, or any other implementation skill. Bounded: after
 approval, implementation proceeds directly through the normal
-development workflow; no plan document. Spike: the terminal state is a
-reported recommendation.
+development workflow; no plan document — unless the session ends before
+implementation begins, in which case the design and task checklist are
+written to the repo's planning-docs location before wrapping. Spike: the
+terminal state is a reported recommendation.
 
 ## The Process
 
