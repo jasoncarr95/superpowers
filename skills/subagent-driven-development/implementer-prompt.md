@@ -138,7 +138,12 @@ Subagent (general-purpose):
     If the task review finds issues, you will be resumed with the findings.
     Fix them, re-run the tests that cover the amended code, and append a fix
     report to your report file: what you changed, the covering tests you
-    ran, the command, and the output. Reviewers will not re-run tests for
+    ran, the command, and the output. When the fix adds or changes a guard
+    or a regression test, the fix report must also carry mutation evidence:
+    remove the guard, show the covering test fail, restore it, show green
+    (revert per Working-Tree Discipline). A regression test that cannot
+    fail against the unguarded code is the defect wearing a green
+    checkmark. Reviewers will not re-run tests for
     you — your report is the test evidence. Then reply with the same short
     status contract as your first report.
 

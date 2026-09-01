@@ -431,7 +431,10 @@ own problem — fresh eyes and a capability bump in one move.
 covering the amended code, appends its fix report to the same report file,
 and returns the short contract. Before re-dispatching the reviewer, confirm
 the fix report contains the covering tests, the command run, and the
-output; dispatch the re-review once all three are present. Name the
+output; when the fix adds or changes a guard or regression test, also
+confirm its mutation evidence (guard removed → test fails → restored →
+green) is in the fix report. Dispatch the re-review once everything
+required is present. Name the
 covering test files in the fix message — a one-line fix does not need the
 whole suite.
 
