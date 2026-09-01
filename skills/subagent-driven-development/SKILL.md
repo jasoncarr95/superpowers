@@ -192,6 +192,15 @@ what you checked as you check it:
   made a test assert nothing, an import that didn't exist, a cache callback
   that evicted the wrong entry — and four of the six were mechanically
   detectable in about five minutes of this check.
+- **snippets that claim to mirror an existing pattern.** Where a task says
+  "same contract as X" or "like the existing Y", diff the task's sample code
+  against the real pattern it names. The literal check cannot catch this:
+  every symbol can exist while the snippet drops a guard every sibling
+  carries. In a real session a count snippet claiming "same contract as the
+  existing chip counts" omitted the soft-delete guard that every sibling
+  count wraps — it would have counted deleted rows in a user-facing chip,
+  and was caught only because the controller happened to hand the
+  implementer "the actual contract wins" as a constraint.
 
 The scan's output is a table, not a verdict. One row for every pair of tasks
 that share a file or an interface: the two tasks, what one produces against
