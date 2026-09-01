@@ -333,6 +333,12 @@ dispatch into a moved tree.
   (5) the report-file path and report contract. Exact values (numbers,
   magic strings, signatures, test cases) appear only in the brief. Never
   make a subagent read the whole plan file.
+- **Docs tasks carry a quote-verification gate in the dispatch:** every
+  quoted UI string, enum list, or count the doc asserts gets one grep
+  against the component or schema that renders or defines it, at write
+  time. Stale quotes are otherwise caught one stage later each — an
+  advisor pass, a task review, the final whole-branch review — every stage
+  more expensive than the grep.
 - **Report file:** name the implementer's report file after the brief
   (brief `…/task-N-brief.md` → report `…/task-N-report.md`) and put it in
   the dispatch prompt. The implementer writes the full report there and
