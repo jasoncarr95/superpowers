@@ -188,6 +188,8 @@ is the whole process.
 - Ask after each section whether it looks right so far
 - Cover: architecture, components, data flow, error handling, testing
 - Be ready to go back and clarify if something doesn't make sense
+- When a decision or model is clearer shown than told, show it before your partner has to ask — comparisons and mockups built from real data (real screenshots of the current app, its own queries run against the user's real data), never invented examples. A mockup that isn't grounded in real data doesn't answer the question. "Show me a few options" arriving from your partner means this step was missed.
+- When a reply shows confusion about how something behaves or looks, switch to evidence on that FIRST confused reply — real screenshots of the current app, its own queries run against the user's real data, mockups only for the delta, labeled real vs mockup. A second prose explanation of the same thing is the wrong move.
 
 **Design for isolation and clarity:**
 
@@ -210,6 +212,7 @@ is the whole process.
   - (Repo conventions override this default: if the repo's CLAUDE.md/AGENTS.md
     names a planning-docs location — e.g. `notes/project-planning/<feature>/` —
     write there instead. Explicit user preferences override both.)
+- Include a compact mermaid diagram of the final model (entities, relationships, flow) in the spec — a design settled visually shouldn't be archived prose-only
 - Use elements-of-style:writing-clearly-and-concisely skill if available
 - Commit the design document to git
 
