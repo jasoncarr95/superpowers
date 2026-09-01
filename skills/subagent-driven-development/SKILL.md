@@ -219,6 +219,17 @@ what you checked as you check it:
   missing-record response shape an entire branch of the diff logic
   depended on; had it been wrong, live user data would have been
   duplicated, and the plan's own verification step gated nothing.
+- **shared types widened in one task, consumed in another.** For each task
+  that widens a shared type or enum, ask: does the type-check gate pass at
+  THIS task's commit with consumers untouched? Widening first breaks the
+  widening task's own gate — the widened inferred type no longer assigns
+  to the narrower unions consumers still declare — so the widening belongs
+  in the same task as its first consumer, or later. The literal check
+  verifies the symbols exist; it never simulates the compile fallout of a
+  cross-task type split. In a real session a plan put an enum widening in
+  Task 1 and its three consumers in Task 8, asserting the schema "already
+  carries it"; Task 1's own check gate broke and the change had to be
+  re-homed by controller ruling.
 
 The scan's output is a table, not a verdict. One row for every pair of tasks
 that share a file or an interface: the two tasks, what one produces against
