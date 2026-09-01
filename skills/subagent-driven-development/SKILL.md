@@ -274,7 +274,14 @@ child is noticed within minutes, not at the end of the session.
 ### 1. Dispatch the implementer
 
 Record BASE (`git rev-parse HEAD`) before dispatching — the review package
-and fix-round diffs need it.
+and fix-round diffs need it. Before every dispatch, BASE must equal the
+previous task's recorded final head from the ledger (for Task 1, the head
+setup left). Unexpected drift means another writer — a concurrent session,
+another tool — is on this checkout: STOP and investigate authorship before
+dispatching anything. Attribute mystery commits by their content (e.g. a
+plan bug present verbatim in a commit whose dispatch had corrected it),
+not by commit trailers — legitimate commits lack trailers too. Never
+dispatch into a moved tree.
 
 - **Task brief:** before dispatching an implementer, run this skill's
   `scripts/task-brief PLAN_FILE N` — it extracts the task's full text to a
