@@ -123,6 +123,10 @@ Subagent (general-purpose):
 
     **Testing:**
     - Do tests actually verify behavior (not just mock behavior)?
+    - For each new test: name the wrong implementation it would catch. If
+      you are unsure it would fail, mutation-check it — apply that wrong
+      implementation, watch the test fail, revert (see Working-Tree
+      Discipline) — and report the mutation you ran.
     - Did I follow TDD if required?
     - Are tests comprehensive?
     - Is the test output pristine (no stray warnings or noise)?
