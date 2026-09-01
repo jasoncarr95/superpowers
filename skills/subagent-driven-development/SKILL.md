@@ -201,6 +201,15 @@ what you checked as you check it:
   count wraps — it would have counted deleted rows in a user-facing chip,
   and was caught only because the controller happened to hand the
   implementer "the actual contract wins" as a constraint.
+- **literals only the outside world can confirm.** Account names, live
+  endpoints, external IDs — the codebase cannot vouch for any of them, so
+  the repo-literal check above never sees them. Give each one cheap probe
+  (a curl) at pre-flight, or carry an explicit "unverified external
+  literal" flag into the dispatch of the task that consumes it. In a real
+  session a plan paired a username with the wrong provider; the error
+  survived all ten task reviews into the live smoke — where the adapter's
+  correct 404 briefly read as a failure — and got transcribed into a unit
+  test's provider pairing.
 
 The scan's output is a table, not a verdict. One row for every pair of tasks
 that share a file or an interface: the two tasks, what one produces against
