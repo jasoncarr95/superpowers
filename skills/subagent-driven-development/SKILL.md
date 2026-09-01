@@ -88,7 +88,7 @@ digraph process {
     "More tasks remain?" [shape=diamond];
     "Dispatch final code reviewer (../requesting-code-review/code-reviewer.md)" [shape=box];
     "Final findings? ONE fix dispatch, one scoped re-review, adjudicate residuals" [shape=box];
-    "Final review clean: harvest ledger findings to the project backlog, commit, then delete this plan's workspace" [shape=box];
+    "Final review clean: harvest ledger findings to the project backlog, commit, then archive this plan's workspace" [shape=box];
     "Use superpowers:finishing-a-development-branch" [shape=box style=filled fillcolor=lightgreen];
 
     "Setup: worktree, ledger check, read plan, pre-flight review" -> "Dispatch implementer subagent (./implementer-prompt.md)";
@@ -117,8 +117,8 @@ digraph process {
     "More tasks remain?" -> "Dispatch implementer subagent (./implementer-prompt.md)" [label="yes"];
     "More tasks remain?" -> "Dispatch final code reviewer (../requesting-code-review/code-reviewer.md)" [label="no"];
     "Dispatch final code reviewer (../requesting-code-review/code-reviewer.md)" -> "Final findings? ONE fix dispatch, one scoped re-review, adjudicate residuals";
-    "Final findings? ONE fix dispatch, one scoped re-review, adjudicate residuals" -> "Final review clean: harvest ledger findings to the project backlog, commit, then delete this plan's workspace";
-    "Final review clean: harvest ledger findings to the project backlog, commit, then delete this plan's workspace" -> "Use superpowers:finishing-a-development-branch";
+    "Final findings? ONE fix dispatch, one scoped re-review, adjudicate residuals" -> "Final review clean: harvest ledger findings to the project backlog, commit, then archive this plan's workspace";
+    "Final review clean: harvest ledger findings to the project backlog, commit, then archive this plan's workspace" -> "Use superpowers:finishing-a-development-branch";
 }
 ```
 
@@ -145,7 +145,9 @@ the plan-scoped ledger and the committed plan file, not only in todos.
   whose last line is a fix round is mid-loop: resume the loop at the next
   round. A ledger whose first line names a different plan file — or a stray
   ledger at the old flat path `.superpowers/sdd/progress.md` — is another
-  plan's progress: leave it in place and start your own, fresh.
+  plan's progress: leave it in place and start your own, fresh. Directories
+  under `.superpowers/sdd/done/` are archives of finished runs — never a
+  resume source.
 - Create the ledger with its identity as the first line:
   `# SDD ledger — plan: <plan file path>`.
 - Also read the plan file's checkboxes. A checked-off task is durable resume
@@ -455,7 +457,8 @@ Before the loop starts, two routes leave it immediately:
   never enter the loop. Write each one to be readable months later by someone
   without this session: name the file, and say what is wrong rather than that
   something is. Triage decides which get fixed; Finish's harvest step is what
-  keeps the rest — the ledger itself is git-ignored and does not survive.
+  keeps the rest — the ledger itself is git-ignored and ends up in an
+  archive nobody reads by default.
 - A finding labeled plan-mandated — or any finding that conflicts with
   what the plan's text requires — is yours to rule on: weigh the finding
   against the plan text, decide with the spec as the binding authority, and
@@ -621,23 +624,23 @@ finishing-a-development-branch presents the options.
 
 ## Finish
 
-### 1. Harvest the ledger — before deleting anything
+### 1. Harvest the ledger — before archiving anything
 
-Before you delete anything, collect every ledger line containing `Ruling:` —
+Before you archive anything, collect every ledger line containing `Ruling:` —
 preflight rulings, parked findings, breaker adjudications, all of them — into
 your final message under "Rulings I made", in the order you made them, each
 with what it costs if wrong. The list is exhaustive: if the ledger holds a
 ruling, the list holds it. That list is the only place the decisions you
 took on your human partner's behalf reach them — they read it and rework
-whatever you got wrong. A ruling that dies with the workspace was a decision
-made in secret.
+whatever you got wrong. A ruling that only survives in the archive was a
+decision made in secret.
 
 Git holds the code and the fixes. It does **not** hold the findings you chose
 not to fix: deferred minors, parked findings with their rulings, accepted
 deviations, plan defects you ruled on, and anything marked UNREVIEWED. Those
-exist only in a git-ignored file you are about to delete. Deleting the
-workspace without harvesting is the silent discard this skill forbids
-everywhere else.
+exist only in a git-ignored file about to leave the live path for an archive
+the project never reads. Archiving the workspace without harvesting is the
+silent discard this skill forbids everywhere else.
 
 Read the ledger and pull every line that is a _finding_ rather than
 bookkeeping — `minor (deferred)`, `parked`, `DEVIATION`, `PLAN DEFECT`,
@@ -658,10 +661,25 @@ committed:
 Findings already fixed on the branch need no harvest — the diff and the
 commit messages carry those.
 
-### 2. Delete the workspace
+### 2. Archive the workspace
 
-Only once the harvest is committed: `rm -rf <workspace>`. Sibling directories
-belong to other plans; leave them alone.
+Only once the harvest is committed, move the workspace out of the live path:
+
+```bash
+ROOT=$(git rev-parse --show-toplevel)
+mkdir -p "$ROOT/.superpowers/sdd/done"
+mv "$ROOT/.superpowers/sdd/<plan-basename>" \
+   "$ROOT/.superpowers/sdd/done/<plan-basename>-$(date +%F)"
+```
+
+If that destination already exists, add a `-2`, `-3` suffix rather than
+merging into it. The move is what marks the plan finished: a workspace at
+the live path means an interrupted run to resume, and a directory under
+`done/` is the run's record — ledger, briefs, reports, review packages —
+kept for later process audits and skill work. `done/` is already
+git-ignored (the `*` in `.superpowers/sdd/.gitignore` covers it). The
+workspace is moved, never deleted. Sibling directories belong to other
+plans; leave them alone.
 
 ### 3. Hand off
 
@@ -682,8 +700,9 @@ call whether to merge work no second pair of eyes has seen.
 | "Reviews slow the loop down"                           | The loop without reviews is just unverified churn. Reviews are the loop's brakes and steering.                                                                                   |
 | "Durable-state bookkeeping is overhead"                | The plan-scoped ledger survives compaction; the committed plan survives across sessions. Controllers without both have re-dispatched completed tasks or lost visible progress.   |
 | "The implementer spawned its own reviewer — free extra assurance" | It's a duplicate seat reviewing the same diff; the task review is the gate. A worker-spawned reviewer is a defect to flag, not rigor.                                  |
-| "The git history is the record — delete the workspace" | Git has the code and the fixes. It never had the findings you chose _not_ to fix. Harvest first, then delete.                                                                    |
-| "The final review already triaged the minors"          | Triage picks which to fix. The ones it declines still need a committed home, or the `rm -rf` discards them.                                                                      |
+| "The git history is the record — the workspace can go" | Git has the code and the fixes. It never had the findings you chose _not_ to fix, nor the record of how the run went. Harvest first, then archive to `done/`.                    |
+| "The final review already triaged the minors"          | Triage picks which to fix. The ones it declines still need a committed home — a ledger sitting in `done/` that nobody opens is a discard with extra steps.                       |
+| "Nobody will read the archive — just `rm -rf` it"      | The archive is the only record of how the run went: rulings, fix rounds, review packages. Git-ignored files cost nothing to keep; a deleted run's audit trail is unrecoverable. |
 | "Every task review passed, so the branch is clean"     | Scoped reviewers cannot see a defect whose symptom lives in a file no task touched. That is what the cross-cutting sweeps are for.                                               |
 | "The plan says it, so it's correct"                    | Plans are written before the code and go stale when a decision changes after drafting. Doc prose in a plan is the likeliest thing to be wrong and the least likely to be caught. |
 | "That test failure was already there"                  | A pre-existing-failure claim without a clean-worktree run at the pre-task SHA is an alibi, not a finding. Reproduce it there or treat it as a regression.                        |
@@ -756,7 +775,7 @@ Re-reviewer: Missing progress reporting — ADDRESSED (src/recovery.js:41).
 Final reviewer: All requirements met. Deferred minors triaged: none block merge.
 
 [Harvest the ledger's deferred/parked findings into the project's backlog, commit]
-[Delete this plan's workspace — the code is in git, the findings are in the backlog]
+[Archive this plan's workspace to .superpowers/sdd/done/ — the code is in git, the findings are in the backlog, the run record stays]
 
 Done! Using superpowers:finishing-a-development-branch.
 ```
