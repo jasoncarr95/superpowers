@@ -34,6 +34,7 @@ When the app already runs, grounding beats invention — a screenshot of the rea
 - **Label real vs mockup visually** — e.g. a green "your app, right now" border vs an orange "mockup" border. The user must always know which pixels exist.
 - **Real data over hypotheticals.** When the question is about a proposed rule or algorithm, run it against the user's real data and show its verbatim output — "6 of 7 proposals match the anchors you placed by hand" is evaluable; a synthetic example is not. If the eventual plan requires a pre-flight verification of the same literals, one dry run serves both.
 - **Delivery without the server:** when the companion server isn't running or the moment doesn't warrant it, a single self-contained HTML brief — screenshots inlined as data URIs, sent via the platform's file-delivery tool — works in any harness and survives restarts, because it's delivered rather than hosted.
+- **A brief lives with its project, not with its session.** Before delivering, write the brief to `<repo-root>/.superpowers/brainstorm/briefs/<YYYY-MM-DD>-<topic>.html` and deliver that path. A brief built only in the session scratchpad is filed under a session id that nothing links back to the design doc it informed; the `briefs/` folder puts it next to the specs and plans it shaped. Like the rest of `.superpowers/`, it stays git-ignored — if the folder is new, create it with a `.gitignore` containing `*`.
 
 ## How It Works
 
