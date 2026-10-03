@@ -46,10 +46,12 @@ Has the user already indicated their worktree preference in your instructions? I
 Honor any existing declared preference without asking. If the user declines consent, work in place and skip to Step 2.
 
 **Fork preference (standing, no need to re-ask):** default to a plain branch
-in the main checkout; create a worktree only when something genuinely runs in
-parallel (a second agent mutating files, a long test run against a fixed
-tree). Solo single-repo work on a branch IS isolated — the branch protects
-the base, and a worktree adds a second checkout to keep in sync. When a
+in the main checkout; create a worktree only when your human partner asked
+for one (the desktop worktree box, `claude -w`, or their note). A live dev
+server or a dirty tree is a blocker to name to them ("stop it / commit
+it?"), not a reason for a worktree. A branch IS isolation — the branch
+protects the base. Before switching branches in a checkout other sessions
+may share, follow the global rule's live-session check. When a
 worktree does exist, subagents must never `git stash`, `git checkout`, or
 otherwise mutate the _main_ checkout's working tree.
 
