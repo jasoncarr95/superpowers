@@ -36,26 +36,25 @@ stop and ask.
 digraph when_to_use {
     "Have implementation plan?" [shape=diamond];
     "Tasks mostly independent?" [shape=diamond];
-    "Stay in this session?" [shape=diamond];
+    "Partner chose inline, or no subagent tool?" [shape=diamond];
     "subagent-driven-development" [shape=box];
     "executing-plans" [shape=box];
     "Manual execution or brainstorm first" [shape=box];
 
     "Have implementation plan?" -> "Tasks mostly independent?" [label="yes"];
     "Have implementation plan?" -> "Manual execution or brainstorm first" [label="no"];
-    "Tasks mostly independent?" -> "Stay in this session?" [label="yes"];
+    "Tasks mostly independent?" -> "Partner chose inline, or no subagent tool?" [label="yes"];
     "Tasks mostly independent?" -> "Manual execution or brainstorm first" [label="no - tightly coupled"];
-    "Stay in this session?" -> "subagent-driven-development" [label="yes"];
-    "Stay in this session?" -> "executing-plans" [label="no - parallel session"];
+    "Partner chose inline, or no subagent tool?" -> "executing-plans" [label="yes"];
+    "Partner chose inline, or no subagent tool?" -> "subagent-driven-development" [label="no"];
 }
 ```
 
-**vs. Executing Plans (parallel session):**
-
-- Same session (no context switch)
-- Fresh subagent per task (no context pollution)
-- Review after each task (spec compliance + code quality), broad review at the end
-- Faster iteration (no human-in-loop between tasks)
+**vs. Executing Plans (inline):**
+- Fresh subagent per task (no context pollution) instead of one context doing every task
+- Review after each task (spec compliance + code quality) instead of only at the end
+- Costs a fresh context per task and per review; inline costs one context plus one final reviewer
+- Both run in this session, share the same plan workspace and ledger, and never pause between tasks
 
 ## The Process
 
@@ -135,8 +134,8 @@ sequences — the single most expensive failure observed. Track progress in
 the plan-scoped ledger and the committed plan file, not only in todos.
 
 - Each plan owns a workspace: at skill start, run this skill's
-  `scripts/sdd-workspace PLAN_FILE` — it prints the plan's git-ignored
-  directory (`<repo-root>/.superpowers/sdd/<plan-basename>/`), home to
+  `bash scripts/sdd-workspace PLAN_FILE` — it prints the plan's git-ignored
+  directory (under `<repo-root>/.superpowers/sdd/`), home to
   every artifact for THIS plan: ledger, briefs, reports, review packages.
   Another plan's directory is never yours to read or write.
 - Check for this plan's ledger at `<workspace>/progress.md`. If its first
@@ -324,7 +323,7 @@ not by commit trailers — legitimate commits lack trailers too. Never
 dispatch into a moved tree.
 
 - **Task brief:** before dispatching an implementer, run this skill's
-  `scripts/task-brief PLAN_FILE N` — it extracts the task's full text to a
+  `bash scripts/task-brief PLAN_FILE N` — it extracts the task's full text to a
   uniquely named file and prints the path. Compose the dispatch so the
   brief stays the single source of
   requirements. Your dispatch should contain: (1) one line on where this
@@ -368,7 +367,7 @@ Template: [implementer-prompt.md](implementer-prompt.md)
 
 Implementer subagents report one of four statuses. Handle each appropriately:
 
-**DONE:** Generate the review package (`scripts/review-package PLAN_FILE BASE HEAD`, from this skill's directory — it prints the unique file path it wrote; BASE is the commit you recorded before dispatching the implementer — never `HEAD~1`, which silently drops all but the last commit of a multi-commit task), then dispatch the task reviewer with the printed path.
+**DONE:** Generate the review package (`bash scripts/review-package PLAN_FILE BASE HEAD`, from this skill's directory — it prints the unique file path it wrote; BASE is the commit you recorded before dispatching the implementer — never `HEAD~1`, which silently drops all but the last commit of a multi-commit task), then dispatch the task reviewer with the printed path.
 
 **DONE_WITH_CONCERNS:** The implementer completed the work but flagged doubts. Read the concerns before proceeding. If the concerns are about correctness or scope, address them before review. If they're observations (e.g., "this file is getting large"), note them and proceed to review.
 
@@ -406,7 +405,7 @@ required. Implementer self-review never replaces the task review; both are
 needed.
 
 - Hand the reviewer its diff as a file: run this skill's
-  `scripts/review-package PLAN_FILE BASE HEAD` and pass the reviewer the file path
+  `bash scripts/review-package PLAN_FILE BASE HEAD` and pass the reviewer the file path
   it prints (or, without bash: `git log --oneline`, `git diff --stat`,
   and `git diff -U10` for the range, redirected to one uniquely named
   file). The output never enters your own context, and the reviewer sees
@@ -492,7 +491,7 @@ required is present. Name the
 covering test files in the fix message — a one-line fix does not need the
 whole suite.
 
-**The re-review is scoped.** Run `scripts/review-package PLAN_FILE FIX_BASE HEAD`
+**The re-review is scoped.** Run `bash scripts/review-package PLAN_FILE FIX_BASE HEAD`
 where FIX_BASE is the head the previous review saw, and dispatch
 [re-review-prompt.md](re-review-prompt.md) with the findings list, the
 brief, the report file, and the printed diff path. The re-reviewer verdicts
@@ -572,7 +571,7 @@ cap.
 ## Final Review
 
 The final whole-branch review gets a package too: run
-`scripts/review-package PLAN_FILE MERGE_BASE HEAD` (MERGE_BASE = the commit the
+`bash scripts/review-package PLAN_FILE MERGE_BASE HEAD` (MERGE_BASE = the commit the
 branch started from, e.g. `git merge-base main HEAD`) and include the
 printed path in the final review dispatch, so the final reviewer reads
 one file instead of re-deriving the branch diff with git commands. Dispatch
@@ -614,7 +613,7 @@ with the complete findings list — not one fixer per finding.
 Per-finding fixers each rebuild context and re-run suites; a real
 session's final-review fix wave cost more than all its tasks combined.
 Then run exactly one scoped re-review of the fix wave
-(`scripts/review-package PLAN_FILE FIX_BASE HEAD` over the fix range,
+(`bash scripts/review-package PLAN_FILE FIX_BASE HEAD` over the fix range,
 [re-review-prompt.md](re-review-prompt.md)).
 Adjudicate any residual findings as in the task loop's breaker: park with
 rulings, or rule on the load-bearing ones and ledger what you decided. Only
@@ -667,14 +666,17 @@ Only once the harvest is committed, move the workspace out of the live path:
 
 ```bash
 ROOT=$(git rev-parse --show-toplevel)
+WS=$(bash scripts/sdd-workspace PLAN_FILE)   # the path setup printed
 mkdir -p "$ROOT/.superpowers/sdd/done"
-mv "$ROOT/.superpowers/sdd/<plan-basename>" \
-   "$ROOT/.superpowers/sdd/done/<plan-basename>-$(date +%F)"
+mv "$WS" "$ROOT/.superpowers/sdd/done/$(basename "$WS")-$(date +%F)"
 ```
 
-If that destination already exists, add a `-2`, `-3` suffix rather than
-merging into it. The move is what marks the plan finished: a workspace at
-the live path means an interrupted run to resume, and a directory under
+Archive the path `sdd-workspace` prints, never one rebuilt from the plan's
+basename: a plan whose filename another plan already owns gets
+`<slug>-<parent>[-N]`, and the bare basename would name that other plan's
+live workspace. If the destination already exists, add a `-2`, `-3` suffix
+rather than merging into it. The move is what marks the plan finished: a
+workspace at the live path means an interrupted run to resume, and a directory under
 `done/` is the run's record — ledger, briefs, reports, review packages —
 kept for later process audits and skill work. `done/` is already
 git-ignored (the `*` in `.superpowers/sdd/.gitignore` covers it). The
@@ -715,7 +717,7 @@ You: I'm using Subagent-Driven Development to execute this plan.
 
 [Setup: worktree verified]
 [Read plan file once: docs/superpowers/plans/feature-plan.md]
-[Resolve workspace: scripts/sdd-workspace docs/superpowers/plans/feature-plan.md — no ledger inside, fresh start]
+[Resolve workspace: bash scripts/sdd-workspace docs/superpowers/plans/feature-plan.md — no ledger inside, fresh start]
 [Create todos for all tasks]
 
 Task 1: Hook installation script

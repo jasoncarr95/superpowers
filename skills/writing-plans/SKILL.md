@@ -7,9 +7,7 @@ description: Use when you have a spec or requirements for a multi-step task, bef
 
 ## Overview
 
-Write comprehensive implementation plans assuming the engineer has zero context for our codebase and questionable taste. Document everything they need to know: which files to touch for each task, code, testing, docs they might need to check, how to test it. Give them the whole plan as bite-sized tasks. DRY. YAGNI. TDD. Frequent commits.
-
-Assume they are a skilled developer, but know almost nothing about our toolset or problem domain. Assume they don't know good test design very well.
+Write implementation plans for an engineer who has not seen this codebase or this spec. Assume they write idiomatic code in the project's language once they know the exact interface and the exact test, and that they will make a reasonable choice wherever the plan leaves one open. What they cannot know is what you decided: which files, which names and signatures, which values from the spec, which tests prove each task. Document those. Give them the whole plan as bite-sized tasks. DRY. YAGNI. TDD. Frequent commits.
 
 **Announce at start:** "I'm using the writing-plans skill to create the implementation plan."
 
@@ -73,10 +71,9 @@ late revision had already reversed. It reached three source files and three
 docs and passed every scoped review, because every reviewer was checking
 transcription accuracy against the plan — the one document that was wrong.
 
-## Bite-Sized Task Granularity
+## Step Granularity
 
-**Each step is one action (2-5 minutes):**
-
+**Each step is one action with a checkable result:**
 - "Write the failing test" - step
 - "Run it to make sure it fails" - step
 - "Implement the minimal code to make the test pass" - step
@@ -108,6 +105,18 @@ naming and copy rules, platform requirements — one line each, with exact
 values copied verbatim from the spec. Every task's requirements implicitly
 include this section.]
 
+## Review Focus
+
+[The five input classes or failure modes the spec implies but no task's
+tests exercise that are most likely to bite a person using this software
+— one line each, naming the input or condition and the behavior a
+reasonable person would expect, most likely first. The spec is a vision
+document: it says what the software must do, not everything it will
+meet, and its silence on an input is not permission for that input to
+break the program. Write the list here, once, with the spec in front of
+you. Then, for each line, add the test that pins it to the task that
+owns the code, in that task's own step style.]
+
 ---
 ```
 
@@ -126,7 +135,9 @@ sentences). It must convey:
 - The plan document's path.
 - The spec/design document's path (omit if none exists).
 - The executor skill to invoke: superpowers:subagent-driven-development
-  (or superpowers:executing-plans if this plan calls for inline execution).
+  (Subagent-driven) or superpowers:executing-plans (Native) — the one you
+  recommend for this plan in the Execution Handoff, or the method your
+  human partner already named.
 - An instruction to read the plan's Session Handoff section first, then
   begin at the first unchecked task, updating checkboxes as work completes.
 
@@ -178,12 +189,11 @@ def test_specific_behavior():
 Run: `pytest tests/path/test.py::test_name -v`
 Expected: FAIL with "function not defined"
 
-- [ ] **Step 3: Write minimal implementation**
+- [ ] **Step 3: Implement `function(input: InputType) -> ResultType` in `exact/path/to/file.py`**
 
-```python
-def function(input):
-    return expected
-```
+One line on the approach when the signature and the test leave a choice
+(which library call, which data structure); a code block only for an
+algorithm they do not determine.
 
 - [ ] **Step 4: Run test to verify it passes**
 
@@ -198,16 +208,28 @@ git commit -m "feat: add specific feature"
 ```
 ````
 
-## No Placeholders
+## What a Step Contains
 
-Every step must contain the actual content an engineer needs. These are **plan failures** — never write them:
+A step is done when the implementer can write exactly one reasonable thing
+from it. That is the whole requirement: unambiguous, not complete. Each kind
+of step carries what makes it unambiguous and nothing more:
 
-- "TBD", "TODO", "implement later", "fill in details"
-- "Add appropriate error handling" / "add validation" / "handle edge cases"
-- "Write tests for the above" (without actual test code)
-- "Similar to Task N" (repeat the code — the engineer may be reading tasks out of order)
-- Steps that describe what to do without showing how (code blocks required for code steps)
-- References to types, functions, or methods not defined in any task
+- **A test step:** the test's name and its assertions, as code, with the
+  spec's exact values in them.
+- **A code step:** the exact signature (name, parameters, return type), the
+  file it lives in, and the specific values the spec pins. The implementer
+  writes the body. A body appears only for an algorithm the signature and
+  tests do not determine, or for exact copy the spec fixes.
+- **A verification step:** the command to run and the output that means it
+  passed.
+- **A reference to another task:** that task's Interfaces block says what
+  to use; the plan does not repeat that task's code.
+
+A plan is the set of decisions the implementer cannot make alone. A plan
+longer than the code it describes has written the code instead. Lines that
+decide nothing ("TBD", "handle edge cases", "add appropriate validation",
+"write tests for the above", a type or function no task defines) are the
+opposite failure, and the self-review catches both.
 
 ## Self-Review
 
@@ -215,11 +237,15 @@ After writing the complete plan, look at the spec with fresh eyes and check the 
 
 **1. Spec coverage:** Skim each section/requirement in the spec. Can you point to a task that implements it? List any gaps.
 
-**2. Placeholder scan:** Search your plan for red flags — any of the patterns from the "No Placeholders" section above. Fix them.
+**2. Step scan:** Every step must let the implementer write exactly one reasonable thing, and no step may carry more than that: a line that decides nothing is a gap, a function body the signature and tests already determine is a transcript. Fix both.
 
 **3. Type consistency:** Do the types, method signatures, and property names you used in later tasks match what you defined in earlier tasks? A function called `clearLayers()` in Task 3 but `clearFullLayers()` in Task 7 is a bug.
 
-**4. Reality check against the codebase:** The three checks above read the plan against itself; this one reads it against the repo. Run every fixture literal through the real library it targets (an invalid fixture often degrades a test silently instead of erroring). Grep for every existing helper, import path, and signature the plan cites — confirm each exists under that name with that arity. Implementers transcribe plan code verbatim and reviewers approve it for matching the brief, so a wrong literal here survives every later gate.
+**4. Review Focus:** For each input class or failure mode the spec implies, is there a task whose tests exercise it? The five uncovered ones most likely to bite a person go in the Review Focus section, and each line there gets its test added to the owning task. An empty section means you checked and found none, not that you skipped the check.
+
+**5. Proportion:** Compare the plan's length to the spec's. A plan several times longer than the spec it implements is a transcript of the program, not a plan. If code blocks are most of the document, replace bodies with signatures, test names and assertions, and check that each step is still unambiguous.
+
+**6. Reality check against the codebase:** The checks above read the plan against itself and the spec; this one reads it against the repo. Run every fixture literal through the real library it targets (an invalid fixture often degrades a test silently instead of erroring). Grep for every existing helper, import path, and signature the plan cites — confirm each exists under that name with that arity. Implementers transcribe the plan's literals, signatures and test assertions verbatim and reviewers approve them for matching the brief, so a wrong literal here survives every later gate.
 
 If you find issues, fix them inline. No need to re-review — just fix and move on. If you find a spec requirement with no task, add the task.
 
@@ -230,27 +256,44 @@ plan creation. Never spend a turn generating handoff content here — no
 subagent dispatch, no re-reading files, no invoking another skill. By the
 time you reach this point, the handoff exists.
 
-After saving the plan, end with an informational message — NOT a blocking
-question — containing:
+After saving and self-reviewing the plan, end with an informational
+message — NOT a blocking question. Your human partner reviews the plan and
+chooses how it runs, either by replying here or by launching the starter
+prompt in a fresh session; nothing executes in this session before that
+reply. Recommend the executor that fits this plan:
 
-1. The starter prompt from the plan's Session Handoff section, in a fenced
-   block, copyable straight from the terminal.
-2. The execution options, requiring no reply for the fresh-session path:
+- **Subagent-driven** - A fresh subagent implements each task and a fresh reviewer checks it before the next one starts, then a whole-branch review at the end. Most thorough; costs a fresh context per task and per review.
+- **Native** - The executing session implements every task itself, the way this harness runs work, then one fresh reviewer on the most capable model checks the whole branch. Cheapest and fastest; no independent review until the end. Runs well with a mid-tier session model, since the plan carries the design.
 
-**"Plan saved to `<plan path>`. Recommended: start a fresh session with the
-prompt above — it executes the plan with subagent-driven development on a
-clean context. Or, to execute here instead, say 'go' (subagent-driven) or
-'inline' (executing-plans)."**
+**When no execution method has already been supplied,** the message is, in
+order:
 
-If your human partner starts a fresh session, this session is done. If they
-reply here instead:
+**"Plan saved to `<plan path>` — please review it before execution starts.
+For this plan I recommend <Subagent-driven | Native>, because <one sentence
+from the plan: how much the tasks depend on each other's interfaces, how
+many there are, what a shipped mistake would cost>."**
 
-**If 'go' (Subagent-Driven):**
+Then the starter prompt from the plan's Session Handoff section, in a
+fenced block, copyable straight from the terminal — it names the executor
+you recommend. Then:
 
+**"Start a fresh session with the prompt above, or say 'go'
+(subagent-driven) / 'native' (executing-plans) to run it here."**
+
+**When an execution method has already been supplied,** keep it: no
+recommendation line, and the starter prompt names that method's executor.
+The message is the plan path and "please review it before execution
+starts", the starter prompt, then **"Start a fresh session with the prompt
+above, or say '<go | native>' to run it here."** — the word for the method
+they named.
+
+If your human partner starts a fresh session, this session is done. A reply
+of 'go' or 'native' here is their plan review and execution-method choice;
+launching the starter prompt carries the same choice into the fresh
+session.
+
+**If Subagent-driven chosen ('go'):**
 - **REQUIRED SUB-SKILL:** Use superpowers:subagent-driven-development
-- Fresh subagent per task + two-stage review
 
-**If 'inline' (Inline Execution):**
-
+**If Native chosen ('native'):**
 - **REQUIRED SUB-SKILL:** Use superpowers:executing-plans
-- Batch execution with checkpoints for review
