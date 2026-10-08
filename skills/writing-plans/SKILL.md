@@ -260,7 +260,12 @@ After saving and self-reviewing the plan, end with an informational
 message — NOT a blocking question. Your human partner reviews the plan and
 chooses how it runs, either by replying here or by launching the starter
 prompt in a fresh session; nothing executes in this session before that
-reply. Recommend the executor that fits this plan:
+reply. Recommend the executor that fits this plan. **Default to Native.**
+Recommend Subagent-driven only when the plan widens a type, enum or
+interface that later tasks or other code consume, or runs past ~8 tasks.
+On a measured 3-task plan, Native cost about a third as much, took half
+the time, and its one final review caught a plan bug the per-task
+reviewers passed.
 
 - **Subagent-driven** - A fresh subagent implements each task and a fresh reviewer checks it before the next one starts, then a whole-branch review at the end. Most thorough; costs a fresh context per task and per review.
 - **Native** - The executing session implements every task itself, the way this harness runs work, then one fresh reviewer on the most capable model checks the whole branch. Cheapest and fastest; no independent review until the end. Runs well with a mid-tier session model, since the plan carries the design.
