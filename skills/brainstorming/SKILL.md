@@ -91,7 +91,8 @@ decide.
 
 **Check the backlog first.** Before proposing any work item, grep the
 project's backlog/todo files for its key nouns; an item already filed
-carries prior decisions you must read.
+carries prior decisions you must read. This is a quick check you run
+yourself, not the recon you offer above; reading is fine (see the gate).
 
 **Show, don't tell.** Offer the visual companion (below) whenever seeing
 would help more than reading:
@@ -105,7 +106,8 @@ would help more than reading:
 Once they've accepted, use it for mockups to react to, side-by-side
 options, and throwaway prototypes they can click.
 
-When a decision or model is clearer shown than told, show it before your
+Once you understand what they want well enough to play it back, a
+decision or model that is clearer shown than told gets shown before your
 partner has to ask — comparisons and mockups built from real data (real
 screenshots of the current app, its own queries run against the user's
 real data), never invented examples. A mockup that isn't grounded in real

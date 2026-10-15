@@ -678,8 +678,9 @@ live workspace. If the destination already exists, add a `-2`, `-3` suffix
 rather than merging into it. The move is what marks the plan finished: a
 workspace at the live path means an interrupted run to resume, and a directory under
 `done/` is the run's record — ledger, briefs, reports, review packages —
-kept for later process audits and skill work. `done/` is already
-git-ignored (the `*` in `.superpowers/sdd/.gitignore` covers it). The
+kept for later process audits and skill work. `done/` is git-ignored by
+the default `*` in `.superpowers/sdd/.gitignore`; if the repo committed its
+own `.gitignore` there, check `git status` after the move. The
 workspace is moved, never deleted. Sibling directories belong to other
 plans; leave them alone.
 
