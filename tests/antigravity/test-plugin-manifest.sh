@@ -51,9 +51,13 @@ if not all(isinstance(p, str) and p.strip() for p in prompts):
 
 claude_manifest = json.loads(
     (root / ".claude-plugin" / "plugin.json").read_text(encoding="utf-8"))
-if manifest["version"] != claude_manifest["version"]:
-    fail(f"version {manifest['version']!r} != .claude-plugin version "
-         f"{claude_manifest['version']!r}")
+# Fork: the Claude manifest is versionless on purpose (every pushed commit is a
+# new version), so the version check compares against package.json instead.
+version_source = (".claude-plugin", claude_manifest) if "version" in claude_manifest \
+    else ("package.json", json.loads((root / "package.json").read_text(encoding="utf-8")))
+if manifest["version"] != version_source[1]["version"]:
+    fail(f"version {manifest['version']!r} != {version_source[0]} version "
+         f"{version_source[1]['version']!r}")
 if manifest["author"] != claude_manifest["author"]:
     fail("author does not match .claude-plugin/plugin.json")
 
