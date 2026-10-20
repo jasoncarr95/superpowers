@@ -132,6 +132,18 @@ break when the mock changes, switch to an integration test with real
 components. **your human partner's question:** "Do we need to be using a
 mock here?"
 
+**An emitted artifact is verified by its consumer, not its syntax.** For a
+file another program will read (a PGN, a CSV, a config), the check is what
+that consumer does with it — replay every variation from its position,
+import it, round-trip it — not that it parses or matches a schema.
+`not.toThrow()` on a parser proves acceptance only; probe what the library
+does with a wrong input before relying on it. When you replace an
+assertion that stayed green on a shipped bug, first feed the old assertion
+that bug's output and watch it pass; the new one must fail on it. In a
+real session fourteen files were reported "parse-checked" while every
+variation sat on the wrong move, and the consumer rejected the first
+paste.
+
 ### Gate Function
 
 ```
