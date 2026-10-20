@@ -407,6 +407,8 @@ Exactly two things count as the failing test. Nothing else does.
 
 Can't produce both? You have a recollection, not evidence. Run Path A.
 
+Read field evidence at its source — the transcript, the report, the failing run — not a retelling of it; when the skill replaces a prompt your human partner already types by hand, those past sessions are also the baseline. When the failure is a harness or tool misbehaving (a hidden pane, a hung tool, a stale screenshot), reproduce it now with the same probe the skill will prescribe, and write from what the re-run shows: in a real session the re-test contradicted the incident report, and a skill written from the report would have sent every later session down a needless fallback.
+
 Path B replaces the **baseline scenario only**. If the edit shapes future behavior rather than recording a fact, you still micro-test the wording against a no-guidance control before shipping (see Micro-Test Wording below).
 
 ## Testing All Skill Types
@@ -595,7 +597,7 @@ Agent found new rationalization? Add explicit counter. Re-test until bulletproof
 Full pressure-scenario runs are the final gate, but they are slow and expensive per iteration. Verify the wording itself first with micro-tests:
 
 1. **One fresh-context sample per call** — a raw API call, or a single-shot subagent if you don't have API access. System prompt = the realistic context the guidance will live in (the full skill or prompt template, not the guidance in isolation); user message = a task that tempts the failure.
-2. **Always include a no-guidance control.** If the control doesn't exhibit the failure, there is nothing to fix — stop, don't author the guidance.
+2. **Always include a no-guidance control.** If the control doesn't exhibit the failure, there is nothing to fix — stop, don't author the guidance. Before spending reps, grep the target for the clause you are asking agents to add: a target that already contains it turns the arm that matters into "this is a duplicate" and the run tells you nothing.
 3. **5+ reps per variant.** Single samples lie.
 4. **Manually read every flagged match.** Score programmatically if you like, but template echoes and quoted counter-examples masquerade as hits; automated counts alone overstate both failure and success.
 5. **Variance is a metric.** When guidance lands, reps converge on the same shape. Five different interpretations across five reps means the wording isn't binding — tighten the form before adding words.
@@ -607,6 +609,10 @@ Micro-tests verify wording; they do not replace pressure scenarios for disciplin
 - Pressure types (time, sunk cost, authority, exhaustion)
 - Plugging holes systematically
 - Meta-testing techniques
+
+### Run the Skill in Its Harness Before Deploying
+
+A subagent fed the skill's text cannot exercise what the harness does to it: argument substitution, `!` pre-run lines, cwd resolution, permission prompts, or whether prose invocation triggers it at all. Before deployment, run the skill the way it will run. In Claude Code that is `claude -p "<a prompt that should trigger it>"` against a project-level copy of the skill, one scratch repository per rep so reps share no state; a slash-only skill or a `!` line needs `claude plugin eval`, because `claude -p "/name"` never reaches the model. First list every `if` in the skill's body and give each branch its own rep: an untested branch is an untested skill. Keep the subagent path for runtimes without a headless mode. In a real session this caught four defects the subagent reps had passed and two branches the test matrix had never enumerated.
 
 ## Anti-Patterns
 
@@ -661,6 +667,7 @@ Deploying untested skills = deploying untested code. It's a violation of quality
 - [ ] Address specific baseline failures identified in RED
 - [ ] Guidance form matches the failure type (see Match the Form to the Failure)
 - [ ] For behavior-shaping guidance: wording micro-tested against a no-guidance control (5+ reps, every flagged match read manually) — N/A for pure reference skills
+- [ ] Skill run headless in its harness before deployment, one rep per branch of its body (see Run the Skill in Its Harness Before Deploying)
 - [ ] Code inline OR link to separate file
 - [ ] One excellent example (not multi-language)
 - [ ] Run scenarios WITH skill - verify agents now comply
