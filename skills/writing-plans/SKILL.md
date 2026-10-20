@@ -222,6 +222,12 @@ of step carries what makes it unambiguous and nothing more:
   tests do not determine, or for exact copy the spec fixes.
 - **A verification step:** the command to run and the output that means it
   passed.
+- **A step that replaces or consolidates a function:** an old-against-new
+  run over the callers' real inputs, diffed, beside the unit tests —
+  fixture tests check the cases someone thought of; the real inputs check
+  the rest. In real sessions a "no output change" refactor was proved by
+  five byte-identical runs, and a rule that passed every planned test
+  dropped the zero-castling spelling every caller accepted.
 - **A reference to another task:** that task's Interfaces block says what
   to use; the plan does not repeat that task's code.
 
@@ -239,7 +245,7 @@ After writing the complete plan, look at the spec with fresh eyes and check the 
 
 **2. Step scan:** Every step must let the implementer write exactly one reasonable thing, and no step may carry more than that: a line that decides nothing is a gap, a function body the signature and tests already determine is a transcript. Fix both.
 
-**3. Type consistency:** Do the types, method signatures, and property names you used in later tasks match what you defined in earlier tasks? A function called `clearLayers()` in Task 3 but `clearFullLayers()` in Task 7 is a bug.
+**3. Type consistency:** Do the types, method signatures, and property names you used in later tasks match what you defined in earlier tasks? A function called `clearLayers()` in Task 3 but `clearFullLayers()` in Task 7 is a bug. Where one task's code writes a file or state that another task's code reads, one test runs the real writer and hands its output to the real reader; a hand-written fixture of that state proves only what its author imagined the writer emits.
 
 **4. Review Focus:** For each input class or failure mode the spec implies, is there a task whose tests exercise it? The five uncovered ones most likely to bite a person go in the Review Focus section, and each line there gets its test added to the owning task. An empty section means you checked and found none, not that you skipped the check.
 
