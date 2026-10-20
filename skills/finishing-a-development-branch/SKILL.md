@@ -161,6 +161,14 @@ tooling — its CLI if one is available, or the creation URL most forges
 print when you push — following the repo's PR template and conventions if
 present, and report the URL to your human partner.
 
+When <base-branch> is itself another open PR's branch (a stacked PR),
+check whether the repository deletes head branches on merge (on GitHub:
+`gh api repos/<owner>/<repo> -q .delete_branch_on_merge`). If it does
+not, the forge will not retarget this PR when the base PR merges and its
+diff goes stale: put in the PR body and in your partner's merge checklist
+"tick Delete branch when merging the base PR, or run
+`gh pr edit <N> --base <default-branch>`".
+
 Keep the worktree — your human partner iterates on PR feedback there.
 Then continue to Step 8 in this same turn — the PR URL is not the end of
 the finish.
