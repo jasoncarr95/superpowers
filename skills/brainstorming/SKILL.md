@@ -93,6 +93,9 @@ decide.
 project's backlog/todo files for its key nouns; an item already filed
 carries prior decisions you must read. This is a quick check you run
 yourself, not the recon you offer above; reading is fine (see the gate).
+A deferral already on file answered the job the ask was doing then; when
+your partner raises the same ask again, ask what job it does now before
+reusing that answer.
 
 **Show, don't tell.** Offer the visual companion (below) whenever seeing
 would help more than reading:
@@ -113,6 +116,18 @@ screenshots of the current app, its own queries run against the user's
 real data), never invented examples. A mockup that isn't grounded in real
 data doesn't answer the question. "Show me a few options" arriving from
 your partner means this step was missed.
+
+Show the output the way the product will show it, not a count of it. For
+a page or a list, print 5–10 real entries exactly as the UI would (label,
+line, where each comes from); for a rule that selects items to delete,
+move or rewrite, run it read-only on their real data and show what it
+takes and what it leaves — how many, how much, and a few real examples of
+each. Counts, histograms and grouping tables are supporting evidence,
+never the decision surface. In real sessions a label choice made from
+grouping tables survived a design review and a full plan and fell the
+first time the entries were rendered, and a delete rule approved from
+folder sizes turned out to free 3 MB of 2.4 GB, because seven of the ten
+worktrees it named held uncommitted work.
 
 When a reply shows confusion about how something behaves or looks, switch
 to evidence on that FIRST confused reply — real screenshots of the current
