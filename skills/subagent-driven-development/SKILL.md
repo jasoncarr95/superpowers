@@ -309,7 +309,7 @@ round writes, and your memory of it does not survive compaction.
 ### 5. Complete the task
 
 When the review comes back clean — or every open finding is parked with a
-ruling at the cap — tick the task's plan checkboxes in its own commit
+ruling at the cap — tick the task's plan checkboxes in the task's last commit
 (stage the plan file with it, or amend: tree otherwise clean, plan file
 only, `git commit --amend --no-edit`), then append the completion line,
 `<head7>` being the post-amend `HEAD`:

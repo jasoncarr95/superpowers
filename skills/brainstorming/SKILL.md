@@ -136,6 +136,14 @@ would help, offer to go look: deeper into their codebase or project,
 their own files and data, or the web. Say what you'd look for. They
 decide whether you go.
 
+**Check the backlog first.** Before proposing any work item, grep the
+project's backlog/todo files for its key nouns; an item already filed
+carries prior decisions you must read. This is a quick check you run
+yourself, not the recon you offer above; reading is fine (see the gate).
+A deferral already on file answered the job the ask was doing then; when
+your partner raises the same ask again, ask what job it does now before
+reusing that answer.
+
 **Lay out the approaches.** Once you understand what they want, and
 before you write anything up, put the ways of building it in a message
 of its own. Come up with several real alternatives and drop the weak
@@ -146,14 +154,6 @@ Recommend one and say why, then ask which way they want to go. When
 there's genuinely one sensible way, say so and explain why the others
 don't fit. This is for how it gets built; for what they want, get them
 describing first.
-
-**Check the backlog first.** Before proposing any work item, grep the
-project's backlog/todo files for its key nouns; an item already filed
-carries prior decisions you must read. This is a quick check you run
-yourself, not the recon you offer above; reading is fine (see the gate).
-A deferral already on file answered the job the ask was doing then; when
-your partner raises the same ask again, ask what job it does now before
-reusing that answer.
 
 **Show, don't tell.** Offer the visual companion (below) whenever seeing
 would help more than reading:
@@ -255,7 +255,7 @@ For a small change, the short design covers the same points in a line
 or two each and goes straight to your human partner, without the
 builder check.
 
-In a software repo, include a compact mermaid diagram of the final model
+In a software repo, a full design includes a compact mermaid diagram of the final model
 (entities, relationships, flow) — a design settled visually shouldn't be
 archived prose-only.
 
