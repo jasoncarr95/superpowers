@@ -89,7 +89,7 @@ transcription accuracy against the plan — the one document that was wrong.
 
 **Every plan MUST start with this header.** The `source:` block names the
 session writing the plan; add `url:` after `session:` only when your tool
-gives the conversation a link.
+gives the conversation a link (`url: unknown` when you can't read it).
 
 ```markdown
 ---
@@ -155,7 +155,7 @@ sentences). It must convey:
   recommend for this plan in the Execution Handoff, or the method your
   human partner already named.
 - An instruction to read the plan's Session Handoff section first, then
-  begin at the first unchecked task, updating checkboxes as work completes.
+  begin at the first unchecked task, ticking each task's boxes in its last commit.
 
 **2. "Don't forget" list** — up to ~8 bullets restricted to items that do
 NOT belong in the plan itself:

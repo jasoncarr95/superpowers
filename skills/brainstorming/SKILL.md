@@ -267,7 +267,8 @@ Otherwise, ask. Your human partner's preferences override all of these.
 
 **Frontmatter:** every design doc, the short one for a small change
 too, starts with a `source:` block naming this session (add `url:` after
-`session:` only when your tool gives the conversation a link):
+`session:` only when your tool gives the conversation a link; `url:
+unknown` when you can't read it):
 
 ```markdown
 ---
