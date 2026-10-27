@@ -310,15 +310,13 @@ plan's workspace out of the live path — the same archive
 superpowers:subagent-driven-development's Finish uses:
 
 ```bash
-ROOT=$(git rev-parse --show-toplevel)
-WS=$(bash ../subagent-driven-development/scripts/sdd-workspace PLAN_FILE)   # the path setup printed
-mkdir -p "$ROOT/.superpowers/sdd/done"
-mv "$WS" "$ROOT/.superpowers/sdd/done/$(basename "$WS")-$(date +%F)"
+bash ../subagent-driven-development/scripts/sdd-archive PLAN_FILE   # prints where the record went
 ```
 
-Archive the path `sdd-workspace` prints, never one rebuilt from the plan's
-basename. If the destination already exists, add a `-2`, `-3` suffix
-rather than merging into it. The move is what marks the plan finished: a
+It archives the path `sdd-workspace` prints, adding `-2`, `-3` rather
+than merging into an existing record; from a linked worktree, into the
+main checkout, so the record survives the worktree's removal. The move
+is what marks the plan finished: a
 workspace at the live path means an interrupted run to resume, and a
 directory under `done/` is the run's record — ledger, briefs, test logs,
 review packages — kept for later process audits, never a resume source.

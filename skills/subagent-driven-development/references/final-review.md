@@ -102,17 +102,15 @@ Only once the final whole-branch review is clean, its fixes are merged, and
 the harvest is committed, move the workspace out of the live path:
 
 ```bash
-ROOT=$(git rev-parse --show-toplevel)
-WS=$(bash scripts/sdd-workspace PLAN_FILE)   # the path setup printed
-mkdir -p "$ROOT/.superpowers/sdd/done"
-mv "$WS" "$ROOT/.superpowers/sdd/done/$(basename "$WS")-$(date +%F)"
+bash scripts/sdd-archive PLAN_FILE   # prints where the record went
 ```
 
-Archive the path `sdd-workspace` prints, never one rebuilt from the plan's
-basename: a plan whose filename another plan already owns gets
-`<slug>-<parent>[-N]`, and the bare basename would name that other plan's
-live workspace. If the destination already exists, add a `-2`, `-3` suffix
-rather than merging into it. The move is what marks the plan finished: a
+It archives the path `sdd-workspace` prints, never one rebuilt from the
+plan's basename (a plan whose filename another plan already owns gets
+`<slug>-<parent>[-N]`), to `.superpowers/sdd/done/<name>-<date>`, adding
+`-2`, `-3` rather than merging into an existing record. From a linked
+worktree it archives into the main checkout, so the record survives the
+worktree's removal. The move is what marks the plan finished: a
 workspace at the live path means an interrupted run to resume, and a directory under
 `done/` is the run's record — ledger, briefs, reports, review packages —
 kept for later process audits and skill work. `done/` is git-ignored by

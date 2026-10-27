@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+# Archive one finished plan's SDD workspace: move the directory sdd-workspace
+# prints for PLAN_FILE to <root>/.superpowers/sdd/done/<name>-<YYYY-MM-DD>/
+# (-2, -3 … on a collision, never merged into an existing record) and print
+# the destination. The workspace is moved, never deleted: the run record
+# (ledger, briefs, reports, review packages) is kept for process audits.
+#
+# <root> is the main checkout when this runs in a linked worktree, so the
+# record survives `git worktree remove` (which deletes ignored files without
+# asking). The live workspace stays per worktree (sdd-workspace); only the
+# archive moves. Anywhere else <root> is this working tree's own root: a plain
+# checkout, or a submodule, whose common dir sits inside the superproject's
+# .git/ where agents may not write.
+#
+# Fork-only (jasoncarr95/superpowers, yason). Used by SDD's Finish
+# (references/final-review.md) and executing-plans' Finish.
+#
+# Usage: sdd-archive PLAN_FILE
+set -euo pipefail
+
+if [ $# -ne 1 ]; then
+  echo "usage: sdd-archive PLAN_FILE" >&2
+  exit 2
+fi
+
+here=$(CDPATH='' cd -- "$(dirname "$0")" && pwd)
+ws=$(bash "$here/sdd-workspace" "$1")
+
+# sdd-workspace creates the workspace when none exists, so a plan already
+# archived (or never run) comes back holding only its plan-path marker.
+if [ "$(ls -A "$ws")" = "plan-path" ]; then
+  rm -f "$ws/plan-path"
+  rmdir "$ws"
+  echo "nothing to archive: no run record for $1" >&2
+  exit 1
+fi
+
+common=$(git rev-parse --path-format=absolute --git-common-dir)
+case "$common" in
+  */.git) root=${common%/.git} ;;               # main checkout, or a linked worktree of it
+  *)      root=$(git rev-parse --show-toplevel) ;;  # submodule, or a worktree of a bare repo
+esac
+root=$(CDPATH='' cd -- "$root" && pwd -P)
+
+sdd="$root/.superpowers/sdd"
+mkdir -p "$sdd/done"
+# Create-only, like sdd-workspace: a repo may commit its own .gitignore here.
+[ -e "$sdd/.gitignore" ] || printf '*\n' > "$sdd/.gitignore"
+
+dest="$sdd/done/$(basename "$ws")-$(date +%F)"
+if [ -e "$dest" ]; then
+  n=2
+  while [ -e "$dest-$n" ]; do n=$((n + 1)); done
+  dest="$dest-$n"
+fi
+mv "$ws" "$dest"
+printf '%s\n' "$dest"

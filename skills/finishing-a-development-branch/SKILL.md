@@ -223,7 +223,21 @@ Step 3, from before that directory change.
 **If `GIT_DIR == GIT_COMMON`:** Normal repo, no worktree to clean up. Done.
 
 **If `WORKTREE_PATH` is under `.worktrees/` or `worktrees/`:** Superpowers
-created this worktree — we own cleanup:
+created this worktree — we own cleanup.
+
+First check what removal would delete without asking: the refusal below
+covers modified and untracked files, but `git worktree remove` deletes
+git-ignored files silently.
+
+```bash
+git -C "$WORKTREE_PATH" status --short --ignored
+```
+
+`!!` lines are ignored files. Build output, caches and dependency folders
+can go. Stop on anything else — notes, `.env` files, local data, or a
+`.superpowers/` holding more than its `.gitignore` files (an SDD run not
+yet archived, a brainstorm brief): show your human partner the list and
+move what they want kept into the main checkout before removing.
 
 ```bash
 git worktree remove "$WORKTREE_PATH"

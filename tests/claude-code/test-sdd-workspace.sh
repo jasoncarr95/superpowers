@@ -380,6 +380,64 @@ PLAN
         echo "    now: $(cat "$own/.superpowers/sdd/.gitignore")"
     fi
 
+    # --- sdd-archive (fork): a linked worktree's run archives to the main checkout ---
+    # SDD never ran in the main checkout, so it has no .superpowers/ yet, and
+    # the worktree sits outside it, as a desktop-app worktree does.
+    git init -q -b main "$TEST_ROOT/arch-main"
+    local am aw arch_ws arch_dest arch_dest2 arch_out arch_rc=0
+    am="$(physical_path "$(cd "$TEST_ROOT/arch-main" && git rev-parse --show-toplevel)")"
+    printf '# Plan\n\n## Task 1: One\n\nOne.\n' > "$am/plan.md"
+    (cd "$am" && git add -A && git -c user.name=t -c user.email=t@t commit -qm init)
+    (cd "$am" && git worktree add -q "$TEST_ROOT/arch-wt" -b arch-feature)
+    aw="$(physical_path "$TEST_ROOT/arch-wt")"
+    arch_ws="$(cd "$aw" && "$SDD_SCRIPTS/sdd-workspace" plan.md)"
+    printf 'Task 1: complete\n' > "$arch_ws/progress.md"
+    arch_dest="$(cd "$aw" && "$SDD_SCRIPTS/sdd-archive" plan.md)"
+    if [[ "$arch_dest" == "$am/.superpowers/sdd/done/plan-$(date +%F)" \
+        && -f "$arch_dest/progress.md" && ! -e "$arch_ws" ]]; then
+        pass "sdd-archive moves a linked worktree's workspace to the main checkout's done/"
+    else
+        fail "sdd-archive moves a linked worktree's workspace to the main checkout's done/"
+        echo "    workspace: $arch_ws"
+        echo "    dest:      $arch_dest"
+    fi
+    if [[ -z "$(cd "$am" && git status --porcelain)" ]]; then
+        pass "the archive is git-ignored in a main checkout SDD never ran in"
+    else
+        fail "the archive is git-ignored in a main checkout SDD never ran in"
+        echo "    status: $(cd "$am" && git status --porcelain)"
+    fi
+
+    arch_ws="$(cd "$aw" && "$SDD_SCRIPTS/sdd-workspace" plan.md)"
+    printf 'Task 1: complete\n' > "$arch_ws/progress.md"
+    arch_dest2="$(cd "$aw" && "$SDD_SCRIPTS/sdd-archive" plan.md)"
+    if [[ "$arch_dest2" == "$arch_dest-2" && -f "$arch_dest/progress.md" ]]; then
+        pass "a second same-day archive gets -2 instead of merging"
+    else
+        fail "a second same-day archive gets -2 instead of merging"
+        echo "    dest2: $arch_dest2"
+    fi
+
+    arch_out="$(cd "$aw" && "$SDD_SCRIPTS/sdd-archive" plan.md 2>&1)" || arch_rc=$?
+    if [[ "$arch_rc" -eq 1 && "$arch_out" == *"nothing to archive"* \
+        && ! -e "$aw/.superpowers/sdd/plan" ]]; then
+        pass "sdd-archive refuses a plan with no run record and leaves no empty workspace"
+    else
+        fail "sdd-archive refuses a plan with no run record and leaves no empty workspace"
+        echo "    rc: $arch_rc"
+        echo "    output: $arch_out"
+    fi
+
+    local plain_dest
+    printf 'Task 1: complete\n' > "$(cd "$own" && "$SDD_SCRIPTS/sdd-workspace" plan.md)/progress.md"
+    plain_dest="$(cd "$own" && "$SDD_SCRIPTS/sdd-archive" plan.md)"
+    if [[ "$plain_dest" == "$(physical_path "$own")/.superpowers/sdd/done/plan-$(date +%F)" ]]; then
+        pass "in a plain checkout sdd-archive archives under its own root"
+    else
+        fail "in a plain checkout sdd-archive archives under its own root"
+        echo "    dest: $plain_dest"
+    fi
+
     echo ""
     if [[ "$FAILURES" -ne 0 ]]; then
         echo "FAILED: $FAILURES assertion(s)."
