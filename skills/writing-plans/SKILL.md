@@ -57,14 +57,19 @@ matches the brief. Nothing in the loop compares that paragraph to the code that
 actually shipped.
 
 So a documentation task lists **the facts the docs must end up asserting** and
-**which file must assert each one** — never the paragraphs to paste. If the
+**which file must assert each one** — never the paragraphs to paste. Pick the
+file closest to the code: its header, the feature's README, the project's
+overview doc. Name an agent context file (AGENTS.md, CLAUDE.md, a rules file)
+only for a fact every future session needs before touching anything: those
+load in every session, and plans are how they bloat. If the
 project has a docs-updating skill or command, invoking it is the task's first
 step, and the fact list becomes the verification checklist rather than the input.
 
 - Bad: a fenced block of finished Markdown for the implementer to copy.
-- Good: "AGENTS.md must state that resolution reads the navigated line and
-  builds no graph, and that the counts are the graph-backed exception. Derive
-  the wording from the shipped code, not from this plan."
+- Good: "The header of `resolve.ts` must state that resolution reads the
+  navigated line and builds no graph, and that the counts are the
+  graph-backed exception. Derive the wording from the shipped code, not from
+  this plan."
 
 In a real session, a plan shipped a paragraph asserting a design rule that a
 late revision had already reversed. It reached three source files and three
