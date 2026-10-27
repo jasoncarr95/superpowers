@@ -47,7 +47,11 @@ Honor any existing declared preference without asking. If the user declines cons
 
 **Fork preference (standing, no need to re-ask):** default to a plain branch
 in the main checkout; create a worktree only when your human partner asked
-for one (the desktop worktree box, `claude -w`, or their note). A live dev
+for one (the desktop app's Worktree toggle, `claude -w`, or their note), or
+when you are about to do branch work in a repo whose AGENTS.md says
+`Worktrees: ok` and another live session shares this checkout. Then make one
+yourself, named for the work, with your native worktree tool (Step 1a); with
+no native tool, ask first. A live dev
 server or a dirty tree is a blocker to name to them ("stop it / commit
 it?"), not a reason for a worktree. A branch IS isolation — the branch
 protects the base. Before switching branches in a checkout other sessions
