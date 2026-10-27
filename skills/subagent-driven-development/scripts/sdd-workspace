@@ -70,8 +70,11 @@ owns() {
   fi
 }
 
+# done/ holds archived runs (sdd-archive, fork-only), never a live workspace:
+# a plan named done.md takes the parent-directory suffix like a collision, so
+# no plan-path marker is ever written into the archive.
 dir="$base/$slug"
-if ! owns "$dir"; then
+if [ "$slug" = "done" ] || ! owns "$dir"; then
   parent=$(basename "$plan_dir")
   dir="$base/$slug-$parent"
   if ! owns "$dir"; then

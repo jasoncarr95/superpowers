@@ -380,6 +380,20 @@ PLAN
         echo "    now: $(cat "$own/.superpowers/sdd/.gitignore")"
     fi
 
+    # --- A plan named done.md never claims the done/ archive (fork) ---
+    mkdir -p "$repo/docs/sprint" "$repo/.superpowers/sdd/done/old-run-2026-01-01"
+    printf '# Done\n\n## Task 1: One\n\nOne.\n' > "$repo/docs/sprint/done.md"
+    local dir_done
+    dir_done="$(cd "$repo" && "$SDD_SCRIPTS/sdd-workspace" docs/sprint/done.md)"
+    if [[ "$dir_done" == "$repo/.superpowers/sdd/done-sprint" \
+        && ! -e "$repo/.superpowers/sdd/done/plan-path" ]]; then
+        pass "a plan named done.md gets a suffixed workspace, never done/"
+    else
+        fail "a plan named done.md gets a suffixed workspace, never done/"
+        echo "    dir: $dir_done"
+        echo "    done/ marker: $(cat "$repo/.superpowers/sdd/done/plan-path" 2>/dev/null)"
+    fi
+
     # --- sdd-archive (fork): a linked worktree's run archives to the main checkout ---
     # SDD never ran in the main checkout, so it has no .superpowers/ yet, and
     # the worktree sits outside it, as a desktop-app worktree does.

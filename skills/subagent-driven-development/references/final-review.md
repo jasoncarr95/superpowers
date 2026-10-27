@@ -43,6 +43,12 @@ that had spread to six files. Both were one sweep question away.
 
 ### The fix wave
 
+The reviewer's "Declined to judge" list is yours: every line there is a
+ruling you make and ledger, like a plan conflict — `Final: Ruling:
+<behavior the reviewer set aside> — <what a reasonable person using this
+software gets, and why that stands or why it is now a finding> — <cost if
+wrong>`. A line you turn into a finding joins the fix wave.
+
 If the final whole-branch review returns findings, dispatch ONE fix subagent
 with the complete findings list — not one fixer per finding.
 Per-finding fixers each rebuild context and re-run suites; a real
