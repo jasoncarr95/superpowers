@@ -150,6 +150,13 @@ Then continue to Step 8 in this same turn.
 
 ### Option 2: Push and Create PR
 
+First, after `git fetch origin <base-branch>`: if
+`git log origin/<base-branch>..<base-branch>` is not empty and those
+commits are in this branch, the PR will show them. Push <base-branch>
+first only when this branch needs them and the project allows it;
+otherwise tell your partner before pushing (the branch should have been
+cut from origin/<base-branch>).
+
 ```bash
 git push -u origin <feature-branch>
 # From a detached HEAD, name the new branch on the remote:
