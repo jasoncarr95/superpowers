@@ -155,7 +155,9 @@ First, after `git fetch origin <base-branch>`: if
 `git merge-base <base-branch> HEAD`, then
 `git log --oneline origin/<base-branch>..<that sha>`: what that lists is
 unpushed base commits this branch carries, and the PR will show them (no
-local <base-branch>: nothing to check). Push <base-branch> first only
+local <base-branch>: nothing to check; no origin/<base-branch>: the base
+is not on the remote, so tell your partner its branch must be pushed and
+its PR opened first, and wait). Push <base-branch> first only
 when this branch needs them and the project allows it; otherwise name
 them to your partner and wait for their call before pushing (the branch
 should have been cut from origin/<base-branch>).
@@ -234,12 +236,15 @@ git-ignored files silently.
 
 ```bash
 git -C "$WORKTREE_PATH" status --short --ignored=matching
+git -C "$WORKTREE_PATH" status --short --ignored -uall -- .superpowers
 ```
 
-`!!` lines are ignored files. Build output, caches and dependency folders
-can go, and so can `.superpowers/…/.gitignore` lines. Stop on anything
-else — notes, `.env` files, local data, any other `.superpowers/` line (an
-SDD run not yet archived, a brainstorm brief): show your human partner the list and
+`!!` lines are ignored files; the second command lists every file under
+`.superpowers/`, which the first shows as one line when the repo ignores
+it by name. Build output, caches and dependency folders can go, and so can
+`.superpowers/…/.gitignore` files. Stop on anything else — notes, `.env`
+files, local data, any other `.superpowers/` file (an SDD run not yet
+archived, a brainstorm brief): show your human partner the list and
 move what they want kept into the main checkout before removing.
 
 ```bash

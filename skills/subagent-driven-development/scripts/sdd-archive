@@ -11,8 +11,9 @@
 # archive moves. Anywhere else <root> is this working tree's own root: a plain
 # checkout, a --separate-git-dir checkout, or a submodule, whose common dir
 # sits inside the superproject's .git/ where agents may not write. (A linked
-# worktree OF a submodule falls back to itself, so move its record out before
-# removing that worktree.)
+# worktree of a submodule, or of a bare repo not named .git, falls back to
+# itself, so move its record out before removing that worktree; one of a
+# --separate-git-dir checkout archives beside its git dir.)
 #
 # Fork-only (jasoncarr95/superpowers, yason). Used by SDD's Finish
 # (references/final-review.md) and executing-plans' Finish.
