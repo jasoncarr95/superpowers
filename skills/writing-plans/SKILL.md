@@ -82,9 +82,20 @@ transcription accuracy against the plan — the one document that was wrong.
 
 ## Plan Document Header
 
-**Every plan MUST start with this header:**
+**Every plan MUST start with this header.** The `source:` block names the
+session writing the plan; add `url:` after `session:` only when your tool
+gives the conversation a link.
 
 ```markdown
+---
+source:
+  tool: [claude-code | codex | cursor]
+  session: [the tool's own id: Claude Code $CLAUDE_CODE_SESSION_ID (never a desktop local_… id), Codex $CODEX_THREAD_ID, Cursor the newest agent-transcripts/<id>/]
+  cwd: [the directory this session runs in]
+  title: [one line: what this session is doing]
+  model: [model id, when known]
+---
+
 # [Feature Name] Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking; update the checkboxes as work completes and commit those updates with the task work so a later session can resume from the plan without reconstructing progress from chat.

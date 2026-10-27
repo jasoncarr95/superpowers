@@ -265,6 +265,21 @@ the repo's CLAUDE.md/AGENTS.md names a planning-docs location (e.g.
 `notes/project-planning/<feature>/`); then write there instead.
 Otherwise, ask. Your human partner's preferences override all of these.
 
+**Frontmatter:** every design doc, the short one for a small change
+too, starts with a `source:` block naming this session (add `url:` after
+`session:` only when your tool gives the conversation a link):
+
+```markdown
+---
+source:
+  tool: [claude-code | codex | cursor]
+  session: [the tool's own id: Claude Code $CLAUDE_CODE_SESSION_ID (never a desktop local_… id), Codex $CODEX_THREAD_ID, Cursor the newest agent-transcripts/<id>/]
+  cwd: [the directory this session runs in]
+  title: [one line: what this session is doing]
+  model: [model id, when known]
+---
+```
+
 **Builder check** (for a project): dispatch a fresh subagent with
 `builder-check-prompt.md` in this directory. When you tell your human
 partner you're writing it up, say a reviewer will read it first and you
