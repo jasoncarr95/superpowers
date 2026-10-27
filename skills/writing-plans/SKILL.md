@@ -269,6 +269,8 @@ After writing the complete plan, look at the spec with fresh eyes and check the 
 
 **6. Reality check against the codebase:** The checks above read the plan against itself and the spec; this one reads it against the repo. Run every fixture literal through the real library it targets (an invalid fixture often degrades a test silently instead of erroring). Grep for every existing helper, import path, and signature the plan cites — confirm each exists under that name with that arity. Implementers transcribe the plan's literals, signatures and test assertions verbatim and reviewers approve them for matching the brief, so a wrong literal here survives every later gate.
 
+**7. Architecture rules:** Read each code block against the rules the project's AGENTS.md/CLAUDE.md states: layering ("logic lives in Services, not Views"), "no X in Y", naming. A block that breaks one is a plan bug even when every symbol resolves: check 6 cannot see it, and the implementer will transcribe it.
+
 If you find issues, fix them inline. No need to re-review — just fix and move on. If you find a spec requirement with no task, add the task.
 
 ## Execution Handoff
