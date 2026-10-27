@@ -103,7 +103,7 @@ source:
 
 # [Feature Name] Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking; update the checkboxes as work completes and commit those updates with the task work so a later session can resume from the plan without reconstructing progress from chat.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use the executor this plan's Session Handoff names (superpowers:executing-plans or superpowers:subagent-driven-development) to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking. The executor ticks a task's boxes in that task's last commit once the task is complete (under subagent-driven-development, the controller, after review); an implementer subagent never edits the plan file. A later session resumes from the boxes without reconstructing progress from chat.
 
 **Goal:** [One sentence describing what this builds]
 
