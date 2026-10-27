@@ -151,11 +151,14 @@ Then continue to Step 8 in this same turn.
 ### Option 2: Push and Create PR
 
 First, after `git fetch origin <base-branch>`: if
-`git log origin/<base-branch>..<base-branch>` is not empty and those
-commits are in this branch, the PR will show them. Push <base-branch>
-first only when this branch needs them and the project allows it;
-otherwise tell your partner before pushing (the branch should have been
-cut from origin/<base-branch>).
+`git log origin/<base-branch>..<base-branch>` is not empty, run
+`git merge-base <base-branch> HEAD`, then
+`git log --oneline origin/<base-branch>..<that sha>`: what that lists is
+unpushed base commits this branch carries, and the PR will show them (no
+local <base-branch>: nothing to check). Push <base-branch> first only
+when this branch needs them and the project allows it; otherwise name
+them to your partner and wait for their call before pushing (the branch
+should have been cut from origin/<base-branch>).
 
 ```bash
 git push -u origin <feature-branch>
@@ -230,13 +233,13 @@ covers modified and untracked files, but `git worktree remove` deletes
 git-ignored files silently.
 
 ```bash
-git -C "$WORKTREE_PATH" status --short --ignored
+git -C "$WORKTREE_PATH" status --short --ignored=matching
 ```
 
 `!!` lines are ignored files. Build output, caches and dependency folders
-can go. Stop on anything else — notes, `.env` files, local data, or a
-`.superpowers/` holding more than its `.gitignore` files (an SDD run not
-yet archived, a brainstorm brief): show your human partner the list and
+can go, and so can `.superpowers/…/.gitignore` lines. Stop on anything
+else — notes, `.env` files, local data, any other `.superpowers/` line (an
+SDD run not yet archived, a brainstorm brief): show your human partner the list and
 move what they want kept into the main checkout before removing.
 
 ```bash
