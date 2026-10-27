@@ -121,7 +121,8 @@ workspace at the live path means an interrupted run to resume, and a directory u
 `done/` is the run's record — ledger, briefs, reports, review packages —
 kept for later process audits and skill work. `done/` is git-ignored by
 the default `*` in `.superpowers/sdd/.gitignore`; if the repo committed its
-own `.gitignore` there, check `git status` after the move. The
+own `.gitignore` there, check `git status` in the checkout the printed
+path is in (from a worktree, the main checkout) after the move. The
 workspace is moved, never deleted. Sibling directories belong to other
 plans; leave them alone.
 

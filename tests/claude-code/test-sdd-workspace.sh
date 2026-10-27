@@ -452,6 +452,39 @@ PLAN
         echo "    dest: $plain_dest"
     fi
 
+    # --- sdd-archive (fork): a submodule archives under its own root, never .git/modules ---
+    git init -q -b main "$TEST_ROOT/sub-lib"
+    printf '# Plan\n\n## Task 1: One\n\nOne.\n' > "$TEST_ROOT/sub-lib/plan.md"
+    (cd "$TEST_ROOT/sub-lib" && git add -A && git -c user.name=t -c user.email=t@t commit -qm lib)
+    git init -q -b main "$TEST_ROOT/sub-super"
+    (cd "$TEST_ROOT/sub-super" && git -c user.name=t -c user.email=t@t commit -q --allow-empty -m s \
+        && git -c protocol.file.allow=always submodule add -q "$TEST_ROOT/sub-lib" lib >/dev/null 2>&1)
+    local sm sub_dest
+    sm="$(physical_path "$(cd "$TEST_ROOT/sub-super/lib" && git rev-parse --show-toplevel)")"
+    printf 'Task 1: complete\n' > "$(cd "$sm" && "$SDD_SCRIPTS/sdd-workspace" plan.md)/progress.md"
+    sub_dest="$(cd "$sm" && "$SDD_SCRIPTS/sdd-archive" plan.md)"
+    if [[ "$sub_dest" == "$sm/.superpowers/sdd/done/plan-$(date +%F)" && -f "$sub_dest/progress.md" ]]; then
+        pass "in a submodule sdd-archive archives under the submodule's own root"
+    else
+        fail "in a submodule sdd-archive archives under the submodule's own root"
+        echo "    dest: $sub_dest"
+    fi
+
+    # --- sdd-archive (fork): a --separate-git-dir checkout archives in its working tree ---
+    mkdir -p "$TEST_ROOT/sep-store"
+    git init -q -b main --separate-git-dir="$TEST_ROOT/sep-store/.git" "$TEST_ROOT/sep"
+    local sep sep_dest
+    sep="$(physical_path "$(cd "$TEST_ROOT/sep" && git rev-parse --show-toplevel)")"
+    printf '# Plan\n\n## Task 1: One\n\nOne.\n' > "$sep/plan.md"
+    printf 'Task 1: complete\n' > "$(cd "$sep" && "$SDD_SCRIPTS/sdd-workspace" plan.md)/progress.md"
+    sep_dest="$(cd "$sep" && "$SDD_SCRIPTS/sdd-archive" plan.md)"
+    if [[ "$sep_dest" == "$sep/.superpowers/sdd/done/plan-$(date +%F)" ]]; then
+        pass "a --separate-git-dir checkout archives in its own working tree"
+    else
+        fail "a --separate-git-dir checkout archives in its own working tree"
+        echo "    dest: $sep_dest"
+    fi
+
     echo ""
     if [[ "$FAILURES" -ne 0 ]]; then
         echo "FAILED: $FAILURES assertion(s)."

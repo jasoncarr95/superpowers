@@ -9,8 +9,10 @@
 # record survives `git worktree remove` (which deletes ignored files without
 # asking). The live workspace stays per worktree (sdd-workspace); only the
 # archive moves. Anywhere else <root> is this working tree's own root: a plain
-# checkout, or a submodule, whose common dir sits inside the superproject's
-# .git/ where agents may not write.
+# checkout, a --separate-git-dir checkout, or a submodule, whose common dir
+# sits inside the superproject's .git/ where agents may not write. (A linked
+# worktree OF a submodule falls back to itself, so move its record out before
+# removing that worktree.)
 #
 # Fork-only (jasoncarr95/superpowers, yason). Used by SDD's Finish
 # (references/final-review.md) and executing-plans' Finish.
@@ -35,11 +37,13 @@ if [ "$(ls -A "$ws")" = "plan-path" ]; then
   exit 1
 fi
 
+gitdir=$(git rev-parse --path-format=absolute --git-dir)
 common=$(git rev-parse --path-format=absolute --git-common-dir)
-case "$common" in
-  */.git) root=${common%/.git} ;;               # main checkout, or a linked worktree of it
-  *)      root=$(git rev-parse --show-toplevel) ;;  # submodule, or a worktree of a bare repo
-esac
+if [ "$gitdir" != "$common" ] && [ "${common##*/}" = ".git" ]; then
+  root=${common%/.git}                    # a linked worktree: archive in the main checkout
+else
+  root=$(git rev-parse --show-toplevel)   # plain checkout, submodule, separate git dir
+fi
 root=$(CDPATH='' cd -- "$root" && pwd -P)
 
 sdd="$root/.superpowers/sdd"
