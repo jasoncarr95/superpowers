@@ -290,7 +290,8 @@ fail, make it pass, then run the whole suite. Record each in the ledger as
 without a test that failed first is not verified; a suite that is not
 green after the pass means the pass is not over. Do not dispatch a
 re-review: it would re-read a diff whose covering tests already answer
-"addressed" and whose suite run already answers "broke nothing".
+"addressed" and whose suite run already answers "broke nothing". Fork
+exception: [references/final-fix-rereview.md](references/final-fix-rereview.md).
 
 A finding you decide not to fix is a ruling — `Final: Ruling: <finding> —
 <why the code stands> — <cost if wrong>` — and reaches your human partner

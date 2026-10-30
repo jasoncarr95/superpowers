@@ -285,11 +285,13 @@ message — NOT a blocking question. Your human partner reviews the plan and
 chooses how it runs, either by replying here or by launching the starter
 prompt in a fresh session; nothing executes in this session before that
 reply. Recommend the executor that fits this plan. **Default to Native.**
-Recommend Subagent-driven only when the plan widens a type, enum or
-interface that later tasks or other code consume, or runs past ~8 tasks.
-On a measured 3-task plan, Native cost about a third as much, took half
-the time, and its one final review caught a plan bug the per-task
-reviewers passed.
+Recommend Subagent-driven only when the plan has 8 or more tasks, or
+your human partner named Subagent-driven (then the supplied-method branch
+below applies). Widened types are not a reason on their own: nearly any
+plan with Interfaces blocks has them. On a measured 3-task plan, Native
+cost about a third as much, took half the time, and its one final review
+caught a plan bug the per-task reviewers passed; on a 6-task plan the
+final review caught the worst bug, one a per-task reviewer had approved.
 
 - **Subagent-driven** - A fresh subagent implements each task and a fresh reviewer checks it before the next one starts, then a whole-branch review at the end. Most thorough; costs a fresh context per task and per review.
 - **Native** - The executing session implements every task itself, the way this harness runs work, then one fresh reviewer on the most capable model checks the whole branch. Cheapest and fastest; no independent review until the end. Runs well with a mid-tier session model, since the plan carries the design.
@@ -299,22 +301,26 @@ order:
 
 **"Plan saved to `<plan path>` — please review it before execution starts.
 For this plan I recommend <Subagent-driven | Native>, because <one sentence
-from the plan: how much the tasks depend on each other's interfaces, how
-many there are, what a shipped mistake would cost>."**
+from the plan: how many tasks it has, or that your human partner named the
+method, and what a shipped mistake would cost>."**
 
 Then the starter prompt from the plan's Session Handoff section, in a
 fenced block, copyable straight from the terminal — it names the executor
 you recommend. Then:
 
-**"Start a fresh session with the prompt above, or say 'go'
-(subagent-driven) / 'native' (executing-plans) to run it here."**
+**"Start a fresh session with the prompt above (it runs <Subagent-driven |
+Native>), or say 'go' (subagent-driven) / 'native' (executing-plans) to
+run it here."** Where your harness shows these as buttons, each button
+names its method ("Fresh session, Native", "Native, here"; "SDD" for
+Subagent-driven, as in "Fresh session, SDD"), so a click is a visible
+method choice.
 
 **When an execution method has already been supplied,** keep it: no
 recommendation line, and the starter prompt names that method's executor.
 The message is the plan path and "please review it before execution
 starts", the starter prompt, then **"Start a fresh session with the prompt
-above, or say '<go | native>' to run it here."** — the word for the method
-they named.
+above (it runs <the method they named>), or say '<go | native>' to run it
+here."** — the word for the method they named.
 
 If your human partner starts a fresh session, this session is done. A reply
 of 'go' or 'native' here is their plan review and execution-method choice;
